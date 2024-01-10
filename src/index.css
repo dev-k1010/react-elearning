@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* padding antd */
+.ant-card .ant-card-body {
+  padding: 0px !important;
+}
