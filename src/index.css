@@ -6,3 +6,19 @@
 .ant-card .ant-card-body {
   padding: 0px !important;
 }
+:where(.css-dev-only-do-not-override-1g853jt).ant-card .ant-card-body {
+  padding: 0;
+  border-radius: 0 0 8px 8px;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  color: gray !important;
+}
+.ant-tabs-nav {
+  margin-bottom: 0 !important;
+}
+:where(.css-dev-only-do-not-override-i46qwz).ant-tabs .ant-tabs-ink-bar {
+  background-color: black;
+  height: 1px !important;
+}

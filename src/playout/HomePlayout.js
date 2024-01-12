@@ -3,7 +3,7 @@ import HeaderPage from "../components/Header/HeaderPage";
 import { Outlet } from "react-router-dom";
 export default function HomePlayout() {
   return (
-    <div>
+    <div >
       <HeaderPage />
       <Outlet />
     </div>

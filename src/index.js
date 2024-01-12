@@ -8,7 +8,8 @@ import { combineReducers } from "@reduxjs/toolkit";
 import { userReducer } from "./redux/reducer/user";
 import thunk from "redux-thunk";
 import { createStore, applyMiddleware, compose } from "redux";
-
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 let rootReducer = combineReducers({
   userReducer,

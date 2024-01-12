@@ -9,10 +9,10 @@ export default function HeaderPage() {
   const renderButton = () => {};
   const renderMenu = () => {};
   return (
-    <div className="text-black  w-full ">
+    <div className="text-white  w-full fixed z-20 bg-color3 ">
       <div className="flex flex-row justify-between items-center h-16 mx-3">
         {/* LOGO */}
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <img src="./logoCyber.png" className="w-10 h-10 " />
           <h2>Cybersoft</h2>
         </div>
@@ -30,7 +30,7 @@ export default function HeaderPage() {
             onClick={() => {
               navigate("/login");
             }}
-            className="px-4 py-2 bg-white text-xs border-black border-2"
+            className="px-4 py-2 bg-black text-xs border-black border-2"
           >
             Log in
           </button>

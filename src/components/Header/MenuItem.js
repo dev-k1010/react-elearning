@@ -28,7 +28,8 @@ const items = [
   },
   {
     type: "divider",
-  },
+  }, 
+  
   {
     label: "3rd menu item（disabled）",
     key: "3",
@@ -43,7 +44,7 @@ const MenuItem = () => (
   >
     <a onClick={(e) => e.preventDefault()}>
       <Space>
-        Hover me
+        Danh mục khóa học
         <DownOutlined />
       </Space>
     </a>
