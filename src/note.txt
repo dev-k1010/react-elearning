@@ -1,0 +1,77 @@
+// const dispatch = useDispatch();
+
+  // const handleBuyNow = (maKhoaHoc, taiKhoan) => {
+  //   dispatch(infoUserCourse(maKhoaHoc));
+  // const isUser = listUserCourse.some((user) => user.taiKhoan === taiKhoan);
+  // console.log("🙂 ~ handleBuyNow ~ isUser:", isUser);
+
+  // if (isUser) {
+  //   Modal.error({
+  //     title: "Please choose another course",
+  //     content: (
+  //       <div>
+  //         <p>Vui lòng chọn khóa học khác!</p>
+  //       </div>
+  //     ),
+  //     okButtonProps: {
+  //       className: "bg-red-500 text-white",
+  //     },
+  //   });
+  // } else {
+  //   console.log("first");
+  // }
+  // if (user.length !== undefined) {
+
+  // dispatch(signUpCourse(maKhoaHoc, taiKhoan));
+  // }
+  // else {
+  //   window.location.href = "/login";
+  // }
+  // };
+
+
+
+
+  /// TabsAntd
+   const listTabs = [
+    { key: "1", label: "Most popular", tab: "1" },
+    { key: "2", label: "New", tab: "2" },
+    { key: "3", label: "Trend", tab: "3" },
+  ];
+  const renderCourse = (courses, stypeCard, isBestSeller) => {
+    return courses.map((course, index) => (
+      <CardItem
+        course={course}
+        stypeCard={stypeCard}
+        isBestSeller={isBestSeller}
+        isCategoryPage={false}
+      />
+    ));
+  };
+  const filterCourses = (courseArr, condition) => {
+    return courseArr.filter((course) =>
+      condition.includes(course.danhMucKhoaHoc.maDanhMucKhoahoc)
+    );
+  };
+  const renderTab = (key, courseArr) => {
+    return key === "1" ? (
+      renderCourse(
+        courseArr
+          .slice()
+          .sort((a, b) => b.luotXem - a.luotXem)
+          .slice(0, 8),
+        1,
+        true
+      )
+    ) : key === "2" ? (
+      renderCourse(filterCourses(courseArr, ["TuDuy", "DiDong"]), 1, false)
+    ) : key === "3" ? (
+      renderCourse(
+        filterCourses(courseArr, ["FrontEnd", "BackEnd", "FullStack"]),
+        1,
+        false
+      )
+    ) : (
+      <></>
+    );
+  };

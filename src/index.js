@@ -2,24 +2,27 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import { Provider } from "react-redux";
-import { combineReducers } from "@reduxjs/toolkit";
-import { userReducer } from "./redux/reducer/user";
-import thunk from "redux-thunk";
-import { createStore, applyMiddleware, compose } from "redux";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-const root = ReactDOM.createRoot(document.getElementById("root"));
-let rootReducer = combineReducers({
-  userReducer,
-});
+import reportWebVitals from "./reportWebVitals";
+import { configureStore } from "@reduxjs/toolkit";
+import { Provider } from "react-redux";
+//
+import userSlice from "./redux/User/userSlice";
+import dataSlice from "./redux/User/dataSlice";
+import thunk from "redux-thunk";
+import Spinner from "./redux/Spinner/spinnerSlice";
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(
-  rootReducer,
-  composeEnhancers(applyMiddleware(thunk))
-);
+const root = ReactDOM.createRoot(document.getElementById("root"));
+
+let store = configureStore({
+  reducer: {
+    userSlice: userSlice,
+    dataSlice: dataSlice,
+    spinnerSlice: Spinner,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
+});
 
 root.render(
   <Provider store={store}>

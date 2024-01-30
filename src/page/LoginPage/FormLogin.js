@@ -1,16 +1,19 @@
 import React, { useEffect } from "react";
-import { Button, Form, Input } from "antd";
-import { useDispatch } from "react-redux";
+import { Button, Form, Input, message } from "antd";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginAction } from "../../redux/action/user";
-import { FaUser } from "react-icons/fa";
+import {
+
+  loginAction,
+
+} from "../../redux/User/action/callApi";
 
 export default function FormLogin() {
   let dispatch = useDispatch();
   let navigate = useNavigate();
-
   const onFinish = (values) => {
     dispatch(loginAction(values, navigate));
+  
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -19,7 +22,7 @@ export default function FormLogin() {
   const renderFormLogin = () => {
     return (
       <Form
-      className="w-full max-w-md mx-auto"
+        className="w-full max-w-md mx-auto"
         name="basic"
         labelCol={{
           span: 8,
@@ -52,15 +55,7 @@ export default function FormLogin() {
               required: true,
               message: "Please input your password!",
             },
-            // {
-            //   min: 8,
-            //   message: "Password must be at least 8 characters!",
-            // },
-            // {
-            //   pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-            //   message:
-            //     "Password must contain at least one letter and one number!",
-            // },
+
           ]}
         >
           <Input.Password placeholder="Password" />
@@ -74,6 +69,7 @@ export default function FormLogin() {
           <Button
             className="bg-blue-700 hover:border-transparent"
             htmlType="submit"
+            onClick={()=> window.location.href = "/"}
           >
             Submit
           </Button>
