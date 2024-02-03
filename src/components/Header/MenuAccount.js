@@ -22,6 +22,7 @@ export default function MenuAccount() {
       localStorage.removeItem("PAGE");
     }
     if (signUp) {
+      
       window.location.href = "/signUp";
     }
     if (accountPage) {

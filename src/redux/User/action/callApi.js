@@ -17,7 +17,7 @@ import { setSpinner } from "../../Spinner/spinnerSlice";
 // User
 //
 // Đăng nhập
-export let loginAction = (values, navigate) => {
+export let loginAction = (values) => {
   return (dispatch) => {
     dispatch(setSpinner(true));
     https
@@ -96,11 +96,9 @@ export let addUser = (values) => {
 };
 // Tìm kiếm người dùng
 export let searchUser = (values) => {
-  console.log("🙂 ~ addUser ~ values:", values);
   return (dispatch) => {
     https(`/api/QuanLyNguoiDung/TimKiemNguoiDung?MaNhom=GP09&tuKhoa=${values}`)
       .then((res) => {
-        console.log("🙂 ~ .then ~ res:", res);
         dispatch(setSearchUser(res.data));
       })
       .catch((err) => {

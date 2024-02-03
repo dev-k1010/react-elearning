@@ -5,8 +5,6 @@ import { addUser, listUser } from "../../redux/User/action/callApi";
 
 export default function SignUpPage() {
   const listUserArr = useSelector((state) => state.userSlice.listUser);
-  console.log("🙂 ~ SignUpPage ~ listUserArr:", listUserArr);
-
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [showHelp, setShowHelp] = useState(false);
@@ -20,6 +18,7 @@ export default function SignUpPage() {
       maNhom: String(""),
       email: String(""),
     });
+    dispatch(listUser());
   }, [form]);
 
   const onFinish = (values) => {
@@ -59,9 +58,10 @@ export default function SignUpPage() {
       dispatch(addUser(values));
     }
   };
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
+  const onValuesChange = () => {
+    setShowHelp(true); // Hiển thị lỗi ngay khi có sự thay đổi
   };
+
   const options = [
     {
       value: "GP09",
@@ -77,8 +77,8 @@ export default function SignUpPage() {
       <div className=" grid grid-cols-1 overflow-hidden items-center justify-center h-screen w-screen md:px-10 lg:px-40">
         <Form
           className="backdrop-blur-lg bg-white/20 grid grid-cols-1 md:grid-cols-5 lg:grid-cols-8 items-center justify-center rounded-2xl p-5 md:space-x-3 "
-          onFinish={(values) => onFinish(values)}
-          onFinishFailed={onFinishFailed}
+          onFinish={onFinish}
+          onValuesChange={onValuesChange}
           initialValue={""}
           form={form}
         >
@@ -116,6 +116,7 @@ export default function SignUpPage() {
                     </div>
                   ))
               }
+              valuePropName="value"
             >
               <Input
                 placeholder="Username"
@@ -285,7 +286,6 @@ export default function SignUpPage() {
                 style={{
                   width: 120,
                 }}
-                onChange={(values) => dispatch(listUser(values))}
                 options={options}
               />
             </Form.Item>
