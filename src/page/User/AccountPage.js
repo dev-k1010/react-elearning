@@ -14,9 +14,10 @@ export default function AccountPage() {
   const courseArr = detailUser.chiTietKhoaHocGhiDanh;
   const [nameCourse, setNameCourse] = useState([]);
 
-  // Cập nhật lại thông tin 
+  // Cập nhật lại thông tin
   useEffect(() => {
     dispatch(infoDetailUser(user.taiKhoan));
+    window.scrollTo(0, 0);
   }, [user]);
 
   // Gửi thông tin cần thay đổi lên server
@@ -154,7 +155,6 @@ export default function AccountPage() {
                       />
                     );
                   })}
-                  
               </>
             ) : (
               <>
@@ -184,7 +184,11 @@ export default function AccountPage() {
       <h2 className="py-4 bg-gradient-to-b from-color3/90 to-color2 p-5 text-color4 text-md font-medium">
         Account information
       </h2>
-      <Tabs className="mx-2 md:mx-10 lg:mx-40" defaultActiveKey="1" items={items} />
+      <Tabs
+        className="mx-2 md:mx-10 lg:mx-40"
+        defaultActiveKey="1"
+        items={items}
+      />
     </div>
   );
 }

@@ -22,6 +22,7 @@ export default function SearchPage() {
   useEffect(() => {
     dispatch(callCourseByCategory(searchName, user && user.maNhom));
     dispatch(callListCourse(user && user.maNhom));
+    window.scrollTo(0, 0);
   }, [dispatch, searchName, user]);
 
   return (

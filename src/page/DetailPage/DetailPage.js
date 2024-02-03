@@ -20,10 +20,11 @@ export default function DetailPage() {
       .catch((err) => {
         message.error("Call API error", err);
       });
+    window.scrollTo(0, 0);
   }, [idDetail]);
 
   return (
-    <div >
+    <div>
       <CardItem
         key={course.maKhoaHoc}
         course={course}

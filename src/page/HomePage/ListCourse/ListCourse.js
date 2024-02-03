@@ -17,6 +17,7 @@ export default function ListCourse() {
     if (user) {
       dispatch(infoDetailUser(user.taiKhoan));
     }
+    window.scrollTo(0, 0);
   }, [user]);
 
   const settings = {
