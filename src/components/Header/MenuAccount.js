@@ -1,21 +1,15 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import {  Dropdown } from "antd";
+import React from "react";
+import { useSelector } from "react-redux";
+import { Dropdown } from "antd";
 import {
   LogoutOutlined,
   FormOutlined,
   SettingOutlined,
   UserOutlined,
-} from "@ant-design/icons"
-import { infoDetailUser } from "../../redux/User/action/callApi";
+} from "@ant-design/icons";
 
-export default function Menu() {
-  let user = useSelector((state) => state.userSlice.user);
-  const dispatch = useDispatch();
-  const handleDetail = () => {
-    dispatch(infoDetailUser(user));
-  };
+export default function MenuAccount() {
+  const user = useSelector((state) => state.userSlice.user);
   const handleButton = ({ login, logOut, signUp, accountPage }) => {
     if (login) {
       window.location.href = "/login";
@@ -31,11 +25,9 @@ export default function Menu() {
       window.location.href = "/signUp";
     }
     if (accountPage) {
-      dispatch(infoDetailUser(user));
       window.location.href = `/account/${user.taiKhoan}`;
     }
   };
-
   const items = [
     {
       key: "1",
@@ -56,13 +48,21 @@ export default function Menu() {
     {
       key: "2",
       icon:
-        user.maLoaiNguoiDung === "GV" ? <SettingOutlined /> : <UserOutlined />,
+        user && user.maLoaiNguoiDung === "GV" ? (
+          <SettingOutlined />
+        ) : (
+          <UserOutlined />
+        ),
       label: (
         <button
           className="px-4 py-2 text-xs"
           onClick={() => handleButton({ accountPage: true })}
         >
-          {user.maLoaiNguoiDung === "GV" ? <>Administration</> : <>Account</>}
+          {user && user.maLoaiNguoiDung === "GV" ? (
+            <>Administration</>
+          ) : (
+            <>Account settings</>
+          )}
         </button>
       ),
     },
@@ -95,42 +95,39 @@ export default function Menu() {
       ),
     },
   ];
-
   const menuProps = {
     items,
   };
 
   return (
     <div className=" flex justify-end items-center space-x-2">
-      {user && (
+      {user && user.taiKhoan ? (
         <Dropdown arrow menu={menuProps}>
-          {user.taiKhoan ? (
-            <span className="w-10 h-10 bg-color2 rounded-full flex items-center justify-center mr-2">
-              <span className="text-white font-bold text-sm">
-                {user.hoTen[0]}
-              </span>
+          <span className="w-10 h-10 bg-color2 rounded-full flex items-center justify-center mr-2">
+            <span className="text-white font-bold text-sm">
+              {user.hoTen[0]}
             </span>
-          ) : (
-            <>
-              <button
-                onClick={() => {
-                  handleButton({ signUp: true });
-                }}
-                className="px-3 py-2 text-xs bg-color4 border-2"
-              >
-                Sign up
-              </button>
-              <button
-                onClick={() => {
-                  handleButton({ login: true });
-                }}
-                className="px-3 py-2 bg-black text-xs  border-2"
-              >
-                Log in
-              </button>
-            </>
-          )}
+          </span>
         </Dropdown>
+      ) : (
+        <>
+          <button
+            onClick={() => {
+              handleButton({ signUp: true });
+            }}
+            className="p-2 md:px-3 md:py-2 text-xs bg-color4 border-2"
+          >
+            Sign up
+          </button>
+          <button
+            onClick={() => {
+              handleButton({ login: true });
+            }}
+            className="p-2 md:px-3 md:py-2 bg-black text-xs  border-2"
+          >
+            Log in
+          </button>
+        </>
       )}
     </div>
   );

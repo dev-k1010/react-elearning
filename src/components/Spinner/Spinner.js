@@ -5,7 +5,7 @@ import { BeatLoader } from "react-spinners";
 export default function Spinner() {
   const [showSpinner, setShowSpinner] = useState(false);
   const isLoading = useSelector((state) => state.spinnerSlice.spinner);
-  console.log("🙂 ~ Spinner ~ isLoading:", isLoading)
+
   useEffect(() => {
     setShowSpinner(isLoading);
   }, [isLoading]);

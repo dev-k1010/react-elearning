@@ -4,12 +4,13 @@ import { https } from "../../service/config";
 import CardItem from "../../components/Card/CardItem";
 import { BarsOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Pagination, Space } from "antd";
-import Slider from "react-slick";
+import { useSelector } from "react-redux";
 
 export default function CategoryPage() {
+  const user = useSelector((state) => state.userSlice.user);
+  const detailUser = useSelector((state) => state.userSlice.detailUser);
   const { idCourse } = useParams();
   const [courseArr, setCourseArr] = useState([]);
-  console.log("🙂 ~ CategoryPage ~ courseArr:", courseArr);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState("desc");
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -94,7 +95,6 @@ export default function CategoryPage() {
           onClick={() => handleSortBy(item)}
           onMouseEnter={() => setHoveredItem(item.key)}
           onMouseLeave={() => setHoveredItem(null)}
-          style={{ fontSize: "1vw" }}
         >
           <span className="mr-2">{item.label}</span>
           <span>{renderSortIcon(item)}</span>
@@ -110,7 +110,6 @@ export default function CategoryPage() {
       overlay={menu}
     >
       <span
-        style={{ fontSize: "1.25vw" }}
         className={`p-2 flex items-center justify-start ${
           hoveredItem ? "border-color3" : ""
         }`}
@@ -124,7 +123,7 @@ export default function CategoryPage() {
   );
 
   return (
-    <div className="pt-20 flex flex-col space-y-3">
+    <div className="flex flex-col space-y-3 pb-10 lg:p-10">
       <h2 className="bg-gradient-to-b from-color3/90 to-color2 p-5 text-color4 text-lg font-medium">
         {courseArr.length > 0 && (
           <h2>
@@ -133,11 +132,11 @@ export default function CategoryPage() {
           </h2>
         )}
       </h2>
-      <div className="px-10 w-screen grid grid-cols-6 space-x-5">
-        <div className="col-span-1">
+      <div className=" grid grid-cols-6 space-y-5 mx-2 md:px-5 lg:px-10 md:space-x-5">
+        <div className="col-span-2 md:col-span-1">
           {renderDropdown(renderSortByMenu(), "Sort by")}
         </div>
-        <div className="col-span-5 flex flex-col justify-center items-center space-y-10 ">
+        <div className="col-span-6 md:col-span-5 flex flex-col justify-center items-center space-y-10 ">
           <div>
             {currentCourses.map((course, index) => (
               <CardItem
@@ -147,6 +146,8 @@ export default function CategoryPage() {
                 key={index}
                 isCategoryPage={true}
                 deleteCourse={false}
+                user={user}
+                detailUser={detailUser}
               />
             ))}
           </div>

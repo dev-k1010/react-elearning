@@ -1,11 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 let initialState = {
-  user: JSON.parse(localStorage.getItem("USER_INFO")) || {},
-  detailUser: JSON.parse(localStorage.getItem("DETAIL_USER")) || {},
-  infoUserCourse:[],
-  listUser: [],
-
+  user: JSON.parse(localStorage.getItem("USER_INFO")),
+  detailUser: JSON.parse(localStorage.getItem("DETAIL_USER")),
+  listUser: null,
+  searchUser: null,
 };
 
 let userSlice = createSlice({
@@ -18,18 +17,14 @@ let userSlice = createSlice({
     setDetailUser: (state, action) => {
       state.detailUser = action.payload;
     },
-    setInfoUserCourse: (state, action) => {
-      state.infoUserCourse = action.payload;
-    },
     setListUser: (state, action) => {
       state.listUser = action.payload;
+    },
+    setSearchUser: (state, action) => {
+      state.searchUser = action.payload;
     },
   },
 });
 export default userSlice.reducer;
-export let {
-  setInfoUser,
-  setDetailUser,
-  setInfoUserCourse,
-  setListUser,
-} = userSlice.actions;
+export let { setInfoUser, setDetailUser, setListUser, setSearchUser } =
+  userSlice.actions;

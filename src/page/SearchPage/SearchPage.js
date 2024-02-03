@@ -10,7 +10,8 @@ import CardItem from "../../components/Card/CardItem";
 export default function SearchPage() {
   const { searchName } = useParams();
   const dispatch = useDispatch();
-  let user = useSelector((state) => state.userSlice.user);
+  const user = useSelector((state) => state.userSlice.user);
+  const detailUser = useSelector((state) => state.userSlice.detailUser);
   const courseByCategory = useSelector(
     (state) => state.dataSlice.courseByCategory
   );
@@ -19,45 +20,49 @@ export default function SearchPage() {
   const isNameInCourse = nameCourse.includes(searchName);
 
   useEffect(() => {
-    dispatch(callCourseByCategory(searchName, user.maNhom));
-    dispatch(callListCourse(user.maNhom));
+    dispatch(callCourseByCategory(searchName, user && user.maNhom));
+    dispatch(callListCourse(user && user.maNhom));
   }, [dispatch, searchName, user]);
 
   return (
-    <div className="pt-24 mx-20">
+    <div className="pb-10 md:p-10">
       <h2 className="bg-gradient-to-b mb-3 from-color3/90 to-color2 p-5 text-color4 text-lg font-medium ">
         Search results ({isNameInCourse ? 1 : courseByCategory.length} course)
       </h2>
-      {isNameInCourse ? (
-        <div>
-          {listCourse.map((item) => {
-            if (item.tenKhoaHoc === searchName) {
+      <div className="md:mx-20">
+        {isNameInCourse ? (
+          <div>
+            {listCourse.map((course) => {
+              if (course.tenKhoaHoc === searchName) {
+                return (
+                  <CardItem
+                    course={course}
+                    stypeCard={2}
+                    isSearchPage={true}
+                    detailUser={detailUser}
+                    user={user}
+                  />
+                );
+              }
+              return null;
+            })}
+          </div>
+        ) : (
+          <div>
+            {courseByCategory.map((course) => {
               return (
                 <CardItem
-                  course={item}
+                  course={course}
                   stypeCard={2}
-                  isBestSeller={false}
-                  isCategoryPage={true}
+                  isSearchPage={true}
+                  detailUser={detailUser}
+                  user={user}
                 />
               );
-            }
-            return null;
-          })}
-        </div>
-      ) : (
-        <div>
-          {courseByCategory.map((item) => {
-            return (
-              <CardItem
-                course={item}
-                stypeCard={2}
-                isBestSeller={false}
-                isCategoryPage={true}
-              />
-            );
-          })}
-        </div>
-      )}
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

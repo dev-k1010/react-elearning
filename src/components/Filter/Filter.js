@@ -2,22 +2,23 @@ import React, { useEffect, useState } from "react";
 import { Space, Pagination, Dropdown, Menu } from "antd";
 import { BarsOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import CardItem from "../Card/CardItem";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function Filter({ courseArr, filter, sortBy }) {
+  const user = useSelector((state) => state.userSlice.user);
+  const detailUser = useSelector((state) => state.userSlice.detailUser);
+
   // Array khóa học
-  const navigate = useNavigate();
   const [currentCoursesArr, setCurrentCoursesArr] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState("desc");
   const [hoveredItem, setHoveredItem] = useState(null);
-  // const currentCourses = currentCoursesArr.slice(startIndex, endIndex);
   // Phân trang
-  const pageSize = 5;
+  const pageSize = 10;
   const totalCourses = currentCoursesArr.length;
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
- 
+
   useEffect(() => {
     const filterState = sessionStorage.getItem("filterState");
     if (filterState) {
@@ -79,14 +80,14 @@ export default function Filter({ courseArr, filter, sortBy }) {
           key={item.key}
           onMouseEnter={() => setHoveredItem(item.key)}
           onMouseLeave={() => setHoveredItem(null)}
-          style={{ fontSize: "1vw" }}
+          className="text-xs"
         >
           <span onClick={() => handleDropDown(item.key)}>{item.label}</span>
           <span>
             {item.key === hoveredItem && item.children && (
               <Menu
-                className="absolute top-0 left-full "
-                style={{ fontSize: "1vw" }}
+                className="absolute top-0 left-full text-xs"
+                // style={{ fontSize: "1vw" }}
               >
                 {item.children.map((child) => (
                   <Menu.Item
@@ -111,7 +112,7 @@ export default function Filter({ courseArr, filter, sortBy }) {
           onClick={() => handleSortBy(item)}
           onMouseEnter={() => setHoveredItem(item.key)}
           onMouseLeave={() => setHoveredItem(null)}
-          style={{ fontSize: "1vw" }}
+          className="text-xs"
         >
           <span className="mr-2">{item.label}</span>
           <span>
@@ -135,7 +136,7 @@ export default function Filter({ courseArr, filter, sortBy }) {
     >
       <span
         style={{ fontSize: "1.25vw" }}
-        className="p-2 flex items-center justify-start "
+        className="p-2 flex items-center justify-start text-xs"
       >
         <Space>
           <span className=" font-bold">{label}</span>
@@ -145,13 +146,12 @@ export default function Filter({ courseArr, filter, sortBy }) {
     </Dropdown>
   );
   return (
-    <div className="grid grid-cols-4 ">
-      <div className="col-span-1 flex space-x-4 ">
+    <div className="grid grid-cols-1 lg:grid-cols-6 space-y-5 md:space-y-0">
+      <div className=" col-span-2 lg:col-span-1 flex md:space-x-4">
         <div>{renderDropdown(renderFilterMenu(), "Filter")}</div>
-
         <div>{renderDropdown(renderSortByMenu(), "Sort by")}</div>
       </div>
-      <div className="flex flex-col justify-center items-center col-span-3 space-y-10">
+      <div className="flex flex-col justify-center items-center col-span-5 lg:col-span-5 space-y-10">
         <div className="grid grid-cols-1 space-y-1">
           {currentCoursesArr
             .slice(startIndex, endIndex)
@@ -162,6 +162,9 @@ export default function Filter({ courseArr, filter, sortBy }) {
                   stypeCard={2}
                   isBestSeller={false}
                   key={index}
+                  isHomePage={true}
+                  detailUser={detailUser}
+                  user={user}
                 />
               );
             })}

@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 export default function HomePlayout() {
   return (
-    <div>
+    <div className="container">
       <HeaderPage />
       <Outlet />
       <Footer />

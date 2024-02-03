@@ -2,12 +2,8 @@ import { Button, Form, Input, Modal, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser, listUser } from "../../redux/User/action/callApi";
-import Alert from "antd/es/alert/Alert";
 
 export default function SignUpPage() {
-  const onChange = (key) => {
-    console.log(key);
-  };
   const listUserArr = useSelector((state) => state.userSlice.listUser);
   console.log("🙂 ~ SignUpPage ~ listUserArr:", listUserArr);
 
@@ -15,7 +11,6 @@ export default function SignUpPage() {
   const [form] = Form.useForm();
   const [showHelp, setShowHelp] = useState(false);
   useEffect(() => {
-    // Set giá trị mặc định cho form từ hook useForm
     form.setFieldsValue({
       taiKhoan: String(""),
       matKhau: String(""),
@@ -33,6 +28,7 @@ export default function SignUpPage() {
       .every((field) => field.errors.length === 0);
 
     setShowHelp(!isFormValid || form.isFieldsTouched());
+
     const duplicateFields = Object.keys(values).filter((key) => {
       return listUserArr.some(
         (user) => user.hasOwnProperty(key) && values[key] === user[key]
@@ -40,7 +36,6 @@ export default function SignUpPage() {
     });
 
     if (duplicateFields.length > 0) {
-      // Có ít nhất một giá trị trùng lặp, hiển thị Modal
       Modal.error({
         title: "Duplicate Values",
         content: (
@@ -64,7 +59,9 @@ export default function SignUpPage() {
       dispatch(addUser(values));
     }
   };
-
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
   const options = [
     {
       value: "GP09",
@@ -72,241 +69,242 @@ export default function SignUpPage() {
     },
   ];
   return (
-    <div className="grid grid-cols-2">
-      <div></div>
-      <Form
-        className="mt-5"
-        onFinish={(values) => onFinish(values)}
-        form={form}
-      >
-        <div className=" px-10">
-          <Form.Item
-            name="taiKhoan"
-            initialValue={""}
-            rules={[
-              {
-                required: true,
-                message: "Please enter your username!",
-              },
-              {
-                pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-                message: "Username must have at least 8 characters and numbers",
-              },
-            ]}
-            help={
-              showHelp &&
-              form
-                .getFieldsError()
-                .find((item) => item.name === "taiKhoan")
-                ?.errors.map((error) => (
-                  <div
-                    key={error.status}
-                    style={{
-                      color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                    }}
-                  >
-                    {error.message}
-                  </div>
-                ))
-            }
-          >
-            <Input
-              placeholder="Username"
-              onChange={(e) => {
-                // Sử dụng hàm normalize để chắc chắn rằng giá trị là chuỗi
-                form.setFieldsValue({
-                  taiKhoan: String(e.target.value),
-                });
-              }}
-            />
-          </Form.Item>
-          {/* password */}
-          <Form.Item
-            name="matKhau"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your password!",
-              },
-              {
-                pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-                message: "Password must have at least 8 characters and numbers",
-              },
-            ]}
-            help={
-              showHelp &&
-              form
-                .getFieldsError()
-                .find((item) => item.name === "matKhau")
-                ?.errors.map((error) => (
-                  <div
-                    key={error.status}
-                    style={{
-                      color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                    }}
-                  >
-                    {error.message}
-                  </div>
-                ))
-            }
-          >
-            <Input
-              placeholder="Password"
-              onChange={(e) => {
-                // Sử dụng hàm normalize để chắc chắn rằng giá trị là chuỗi
-                form.setFieldsValue({
-                  matKhau: String(e.target.value),
-                });
-              }}
-            />
-          </Form.Item>
-          {/* name */}
-          <Form.Item
-            name="hoTen"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your name!",
-              },
-              {
-                pattern: /^[a-zA-Z\u00C0-\u1EF3\s]+$/,
-                message:
-                  "Name should not contain numbers or special characters",
-              },
-            ]}
-            help={
-              showHelp &&
-              form
-                .getFieldsError()
-                .find((item) => item.name === "hoTen")
-                ?.errors.map((error) => (
-                  <div
-                    key={error.status}
-                    style={{
-                      color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                    }}
-                  >
-                    {error.message}
-                  </div>
-                ))
-            }
-          >
-            <Input
-              placeholder="Fullname"
-              onChange={(e) => {
-                // Sử dụng hàm normalize để chắc chắn rằng giá trị là chuỗi
-                form.setFieldsValue({
-                  hoTen: String(e.target.value),
-                });
-              }}
-            />
-          </Form.Item>
-          {/* sdt */}
-          <Form.Item
-            name="soDt"
-            rules={[
-              {
-                required: true,
-                message: "Please enter your phone number!",
-              },
-              {
-                pattern: /^[0-9]{9}$/,
-                message: "Phone number must consist of 9 digits",
-              },
-            ]}
-            help={
-              showHelp &&
-              form
-                .getFieldsError()
-                .find((item) => item.name === "soDt")
-                ?.errors.map((error) => (
-                  <div
-                    key={error.status}
-                    style={{
-                      color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                    }}
-                  >
-                    {error.message}
-                  </div>
-                ))
-            }
-          >
-            <Input
-              placeholder="Phone number"
-              onChange={(e) => {
-                // Sử dụng hàm normalize để chắc chắn rằng giá trị là chuỗi
-                form.setFieldsValue({
-                  soDt: String(e.target.value),
-                });
-              }}
-            />
-          </Form.Item>
-
-          {/* Email */}
-          <Form.Item
-            name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please enter a valid email!",
-              },
-              {
-                pattern: /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
-                message: "Please enter a valid email!",
-              },
-            ]}
-            help={
-              showHelp &&
-              form
-                .getFieldsError()
-                .find((item) => item.name === "email")
-                ?.errors.map((error) => (
-                  <div
-                    key={error.status}
-                    style={{
-                      color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                    }}
-                  >
-                    {error.message}
-                  </div>
-                ))
-            }
-          >
-            <Input placeholder="Email" />
-          </Form.Item>
-          <Form.Item
-            name="maNhom"
-            rules={[
-              {
-                required: true,
-                message: "Please select ID!",
-              },
-            ]}
-          >
-            <Select
-              placeholder="ID"
-              style={{
-                width: 120,
-              }}
-              onChange={(values) => dispatch(listUser(values))}
-              options={options}
-            />
-          </Form.Item>
-          <Form.Item
-            wrapperCol={{
-              offset: 8,
-              span: 16,
-            }}
-          >
-            <Button
-              className="bg-color3 text-white hover:bg-color4 hover:text-black border-none"
-              htmlType="submit"
+    <div
+      style={{
+        backgroundImage: `url("./IMG/bg3.jpg")`,
+      }}
+    >
+      <div className=" grid grid-cols-1 overflow-hidden items-center justify-center h-screen w-screen md:px-10 lg:px-40">
+        <Form
+          className="backdrop-blur-lg bg-white/20 grid grid-cols-1 md:grid-cols-5 lg:grid-cols-8 items-center justify-center rounded-2xl p-5 md:space-x-3 "
+          onFinish={(values) => onFinish(values)}
+          onFinishFailed={onFinishFailed}
+          initialValue={""}
+          form={form}
+        >
+          <span className="hidden md:block md:col-span-3 lg:col-span-5 ">
+            <div className="md:h-full md:w-full md:grid md:grid-cols-1 justify-center items-center">
+              <img src="./IMG/web.jpg" alt="" />
+            </div>
+          </span>
+          <div className="lg:col-span-3 col-span-2 h-full w-full grid grid-cols-1 items-center justify-center">
+            <Form.Item
+              name="taiKhoan"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your username!",
+                },
+                {
+                  pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                  message: "Include  8 characters and numbers",
+                },
+              ]}
+              help={
+                showHelp &&
+                form
+                  .getFieldsError()
+                  .find((item) => item.name === "taiKhoan")
+                  ?.errors.map((error) => (
+                    <div
+                      key={error.status}
+                      style={{
+                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
+                      }}
+                    >
+                      {error.message}
+                    </div>
+                  ))
+              }
             >
-              SignUp
-            </Button>
-          </Form.Item>
-        </div>
-      </Form>
+              <Input
+                placeholder="Username"
+                onChange={(e) => {
+                  form.setFieldsValue({
+                    taiKhoan: String(e.target.value),
+                  });
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="matKhau"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your password!",
+                },
+                {
+                  pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                  message: "Include  8 characters and numbers",
+                },
+              ]}
+              help={
+                showHelp &&
+                form
+                  .getFieldsError()
+                  .find((item) => item.name === "matKhau")
+                  ?.errors.map((error) => (
+                    <div
+                      key={error.status}
+                      style={{
+                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
+                      }}
+                    >
+                      {error.message}
+                    </div>
+                  ))
+              }
+            >
+              <Input.Password
+                placeholder="Password"
+                onChange={(e) => {
+                  form.setFieldsValue({
+                    matKhau: String(e.target.value),
+                  });
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="hoTen"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your name!",
+                },
+                {
+                  pattern: /^[a-zA-Z\u00C0-\u1EF3\s]+$/,
+                  message: "Should not contain numbers or special characters",
+                },
+              ]}
+              help={
+                showHelp &&
+                form
+                  .getFieldsError()
+                  .find((item) => item.name === "hoTen")
+                  ?.errors.map((error) => (
+                    <div
+                      key={error.status}
+                      style={{
+                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
+                      }}
+                    >
+                      {error.message}
+                    </div>
+                  ))
+              }
+            >
+              <Input
+                placeholder="Fullname"
+                onChange={(e) => {
+                  form.setFieldsValue({
+                    hoTen: String(e.target.value),
+                  });
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="soDt"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your phone number!",
+                },
+                {
+                  pattern: /^[0-9]{10}$/,
+                  message: "Phone number must consist of 10 digits",
+                },
+              ]}
+              help={
+                showHelp &&
+                form
+                  .getFieldsError()
+                  .find((item) => item.name === "soDt")
+                  ?.errors.map((error) => (
+                    <div
+                      key={error.status}
+                      style={{
+                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
+                      }}
+                    >
+                      {error.message}
+                    </div>
+                  ))
+              }
+            >
+              <Input
+                placeholder="Phone number"
+                onChange={(e) => {
+                  form.setFieldsValue({
+                    soDt: String(e.target.value),
+                  });
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter a valid email!",
+                },
+                {
+                  pattern: /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
+                  message: "Please enter a valid email!",
+                },
+              ]}
+              help={
+                showHelp &&
+                form
+                  .getFieldsError()
+                  .find((item) => item.name === "email")
+                  ?.errors.map((error) => (
+                    <div
+                      key={error.status}
+                      style={{
+                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
+                      }}
+                    >
+                      {error.message}
+                    </div>
+                  ))
+              }
+            >
+              <Input placeholder="Email" />
+            </Form.Item>
+            <Form.Item
+              name="maNhom"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select ID!",
+                },
+              ]}
+            >
+              <Select
+                placeholder="ID"
+                style={{
+                  width: 120,
+                }}
+                onChange={(values) => dispatch(listUser(values))}
+                options={options}
+              />
+            </Form.Item>
+            <Form.Item
+              wrapperCol={{
+                offset: 8,
+                span: 16,
+              }}
+            >
+              <Button
+                className="bg-color3 text-white hover:bg-color4 hover:text-black border-none w-32"
+                htmlType="submit"
+              >
+                SignUp
+              </Button>
+            </Form.Item>
+          </div>
+        </Form>
+      </div>
     </div>
   );
 }

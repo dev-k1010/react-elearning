@@ -8,103 +8,108 @@ import { useSelector } from "react-redux";
 export default function TabsAntd() {
   const courseArr = useSelector((state) => state.dataSlice.listCourseArr);
   const user = useSelector((state) => state.userSlice.user);
-  const listUserCourse = useSelector((state) => state.userSlice.infoUserCourse);
+  const detailUser = useSelector((state) => state.userSlice.detailUser);
+
   const settings = {
     className: "center",
     infinite: true,
-    centerMode: true,
+    // centerMode: true,
     centerPadding: "2px",
     slidesToShow: 4,
-    slidesToScroll: 1,
-    speed: 300,
+    slidesToScroll: 4,
+    speed: 1200,
     rows: 1,
-    cssEase: "linear",
+    cssEase: "ease-in-out",
 
     responsive: [
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: 3,
+          slidesToScroll: 3,
           initialSlide: 2,
         },
       },
       {
         breakpoint: 480,
         settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+          slidesToShow: 2,
+          slidesToScroll: 2,
         },
       },
     ],
   };
-  const listTabs = [
-    { key: "1", label: "Most popular", tab: "1" },
-    { key: "2", label: "New", tab: "2" },
-    { key: "3", label: "Trend", tab: "3" },
-  ];
-  const renderCourse = (courses, stypeCard, isBestSeller) => {
-    return courses.map((course, index) => (
-      <CardItem
-        course={course}
-        stypeCard={stypeCard}
-        isBestSeller={isBestSeller}
-        isCategoryPage={false}
-        user={user}
-        listUserCourse={listUserCourse}
-      />
-    ));
-  };
-  const filterCourses = (courseArr, condition) => {
-    return courseArr.filter((course) =>
-      condition.includes(course.danhMucKhoaHoc.maDanhMucKhoahoc)
-    );
-  };
-  const renderTab = (key, courseArr) => {
-    return key === "1" ? (
-      renderCourse(
+
+  const renderCardItems = (filteredCourses, isBestSeller) => (
+    <Slider {...settings}>
+      {filteredCourses.map((course, index) => (
+        <CardItem
+          key={index}
+          course={course}
+          stypeCard={1}
+          isBestSeller={isBestSeller}
+          isCategoryPage={false}
+          detailUser={detailUser}
+          user={user}
+        />
+      ))}
+    </Slider>
+  );
+
+  const items = [
+    {
+      key: "1",
+      label: "Most popular",
+      children: renderCardItems(
         courseArr
           .slice()
           .sort((a, b) => b.luotXem - a.luotXem)
-          .slice(0, 8),
-        1,
+          .slice(0, 15),
         true
-      )
-    ) : key === "2" ? (
-      renderCourse(filterCourses(courseArr, ["TuDuy", "DiDong"]), 1, false)
-    ) : key === "3" ? (
-      renderCourse(
-        filterCourses(courseArr, ["FrontEnd", "BackEnd", "FullStack"]),
-        1,
+      ),
+    },
+    {
+      key: "2",
+      label: "New",
+      children: renderCardItems(
+        courseArr.filter(
+          (course) =>
+            course.danhMucKhoaHoc.maDanhMucKhoahoc === `TuDuy` ||
+            course.danhMucKhoaHoc.maDanhMucKhoahoc === `DiDong`
+        ),
         false
-      )
-    ) : (
-      <></>
-    );
-  };
-
-  //
-  const onChange = (key) => {
-    console.log(key);
-  };
+      ),
+    },
+    {
+      key: "3",
+      label: "Trend",
+      children: renderCardItems(
+        courseArr.filter((course) =>
+          ["FrontEnd", "BackEnd", "FullStack"].includes(
+            course.danhMucKhoaHoc.maDanhMucKhoahoc
+          )
+        ),
+        false
+      ),
+    },
+  ];
 
   return (
     <Tabs
-      defaultActiveKey="0"
+      defaultActiveKey="1"
       destroyInactiveTabPane={true}
-      onChange={onChange}
-      className="px-10"
+      className="px-7 md:px-10"
     >
-      {listTabs.map((item, index) => (
+      {items.map((item) => (
         <TabPane
-          key={index}
           tab={
-            <span style={{ fontSize: "1vw" }} className=" text-black">
+            <span  className=" text-black text-xs">
               {item.label}
             </span>
           }
+          key={item.key}
         >
-          <Slider {...settings}>{renderTab(item.key, courseArr)}</Slider>
+          {item.children}
         </TabPane>
       ))}
     </Tabs>
