@@ -6,11 +6,20 @@ import {
   FormOutlined,
   SettingOutlined,
   UserOutlined,
+  SolutionOutlined,
+  ProfileOutlined,
 } from "@ant-design/icons";
 
 export default function MenuAccount() {
   const user = useSelector((state) => state.userSlice.user);
-  const handleButton = ({ login, logOut, signUp, accountPage }) => {
+  const handleButton = ({
+    login,
+    logOut,
+    signUp,
+    accountPage,
+    managerUserPage,
+    managerCoursePage,
+  }) => {
     if (login) {
       window.location.href = "/login";
     }
@@ -22,11 +31,17 @@ export default function MenuAccount() {
       localStorage.removeItem("PAGE");
     }
     if (signUp) {
-      
       window.location.href = "/signUp";
     }
     if (accountPage) {
       window.location.href = `/account/${user.taiKhoan}`;
+    }
+    if (managerUserPage) {
+      
+      window.location.href = `/managerUser`;
+    }
+    if (managerCoursePage) {
+      window.location.href = `/managerCourse`;
     }
   };
   const items = [
@@ -67,8 +82,34 @@ export default function MenuAccount() {
         </button>
       ),
     },
+    user &&
+      user.maLoaiNguoiDung === "GV" && {
+        key: "3",
+        icon: <SolutionOutlined />,
+        label: (
+          <button
+            className="px-4 py-2 text-xs"
+            onClick={() => handleButton({ managerUserPage: true })}
+          >
+            <>Managerment User</>
+          </button>
+        ),
+      },
+    user &&
+      user.maLoaiNguoiDung === "GV" && {
+        key: "4",
+        icon: <ProfileOutlined />,
+        label: (
+          <button
+            className="px-4 py-2 text-xs"
+            onClick={() => handleButton({ managerCoursePage: true })}
+          >
+            <>Managerment Course</>
+          </button>
+        ),
+      },
     {
-      key: "3",
+      key: "5",
       icon: <FormOutlined />,
       label: (
         <button
@@ -82,7 +123,7 @@ export default function MenuAccount() {
       ),
     },
     {
-      key: "4",
+      key: "6",
       icon: <LogoutOutlined />,
       label: (
         <button

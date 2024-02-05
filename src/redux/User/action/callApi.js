@@ -94,18 +94,7 @@ export let addUser = (values) => {
       });
   };
 };
-// Tìm kiếm người dùng
-export let searchUser = (values) => {
-  return (dispatch) => {
-    https(`/api/QuanLyNguoiDung/TimKiemNguoiDung?MaNhom=GP09&tuKhoa=${values}`)
-      .then((res) => {
-        dispatch(setSearchUser(res.data));
-      })
-      .catch((err) => {
-        console.log("🙂 ~ return ~ err:", err);
-      });
-  };
-};
+
 
 //
 // Data Course
