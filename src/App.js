@@ -14,6 +14,7 @@ import ManagerCoursePage from "./admin/ManagerCoursePage/ManagerCoursePage";
 import AddUser from "./admin/ManagerUserPage/AddUser";
 import SettingUser from "./admin/ManagerUserPage/SettingUser/SettingUser";
 import AddCourse from "./admin/ManagerCoursePage/AddCourse";
+import SettingCourse from "./admin/ManagerCoursePage/SettingCourse/SettingCourse";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/addUser" element={<AddUser />} />
             <Route path="/addCourse" element={<AddCourse />} />
             <Route path="/setting/:idUser" element={<SettingUser />} />
+            <Route path="/setting/:idCourse" element={<SettingCourse />} />
           </Route>
 
           <Route path="/login" element={<LoginPage />} />
