@@ -29,6 +29,7 @@ export default function MenuAccount() {
       localStorage.removeItem("DETAIL_USER");
       localStorage.removeItem("FILTER");
       localStorage.removeItem("PAGE");
+      localStorage.removeItem("DETAIL_COURSE");
     }
     if (signUp) {
       window.location.href = "/signUp";
@@ -37,7 +38,6 @@ export default function MenuAccount() {
       window.location.href = `/account/${user.taiKhoan}`;
     }
     if (managerUserPage) {
-      
       window.location.href = `/managerUser`;
     }
     if (managerCoursePage) {

@@ -28,12 +28,49 @@ export default function CategoryPage() {
     window.scrollTo(0, 0);
   }, [idCourse]);
 
+  const check = (course) => {
+    const checkNullValue = (course) => {
+      for (const key in course) {
+        if (course.hasOwnProperty(key)) {
+          const value = course[key];
+
+          // Kiểm tra giá trị của key
+          if (value === null) {
+            return false;
+          }
+
+          // Nếu giá trị là một object hoặc array, thực hiện kiểm tra đệ quy
+          if (typeof value === "object" && value !== null) {
+            if (Array.isArray(value)) {
+              // Nếu giá trị là một array, kiểm tra từng phần tử trong array
+              for (let i = 0; i < value.length; i++) {
+                if (!checkNullValue(value[i])) {
+                  return false; // Nếu có giá trị null, trả về false
+                }
+              }
+            } else {
+              // Nếu giá trị là một object, thực hiện kiểm tra đệ quy
+              if (!checkNullValue(value)) {
+                return false; // Nếu có giá trị null, trả về false
+              }
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    return checkNullValue(course);
+  };
+  // Lọc khóa học không có key NULL
+  const courseVaidArr = courseArr.filter((course) => {
+    return check(course);
+  });
   const pageSize = 5;
-  const totalCourses = courseArr.length;
+  const totalCourses = courseVaidArr.length;
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const currentCourses = courseArr.slice(startIndex, endIndex);
-
+  const currentCourses = courseVaidArr.slice(startIndex, endIndex);
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -51,7 +88,7 @@ export default function CategoryPage() {
 
   const handleSortBy = (item) => {
     sortOrder === "desc" ? setSortOrder("asc") : setSortOrder("desc");
-    const sortedCourses = [...courseArr].sort((a, b) => {
+    const sortedCourses = [...courseVaidArr].sort((a, b) => {
       if (item.key === "1") {
         return sortOrder === "desc"
           ? a.luotXem - b.luotXem
@@ -127,7 +164,7 @@ export default function CategoryPage() {
       <h2 className="bg-gradient-to-b from-color3/90 to-color2 p-5 text-color4 text-lg font-medium">
         {courseArr.length > 0 && (
           <h2>
-            {courseArr[0].danhMucKhoaHoc.maDanhMucKhoahoc} ({courseArr.length}{" "}
+            {courseArr[0].danhMucKhoaHoc.maDanhMucKhoahoc} ({courseVaidArr.length}{" "}
             course)
           </h2>
         )}

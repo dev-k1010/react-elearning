@@ -14,13 +14,3 @@ export let https = axios.create({
       "Bearer " + JSON.parse(localStorage.getItem("USER_INFO"))?.accessToken,
   },
 });
-// Design TuDuy DiDong
-// 
-
-
-
-
-
-
-
-// Thực hiện chức năng xóa kháo học đã đăng kí 

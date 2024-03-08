@@ -2,12 +2,13 @@ import { Button, Table, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { https } from "../../../service/config";
 import { useDispatch } from "react-redux";
-import { cancelCourse } from "../../../redux/User/action/callApi";
+import { cancelCourse } from "../../../redux/Admin/action/callAdminApi";
+
 
 export default function WaitCourse({ courseArr, user }) {
   const dispatch = useDispatch();
   const [confirmCourse, setConfirmCourse] = useState([]);
-  console.log("🙂 ~ WaitCourse ~ confirmCourse:", confirmCourse);
+
   useEffect(() => {
     confirm(user);
   }, [user]);
@@ -34,12 +35,11 @@ export default function WaitCourse({ courseArr, user }) {
         console.log("🙂 ~ confirm ~ err:", err);
       });
   };
-  const handleConfirm = (values) => {
-    registerCourse(values, user.taiKhoan);
+  const handleConfirm = (maKhoaHoc) => {
+    registerCourse(maKhoaHoc, user.taiKhoan);
   };
-  const handleCancelConfirm = (values) => {
-    console.log("🙂 ~ handleCancelConfirm ~ values:", values);
-    dispatch(cancelCourse(values, user.taiKhoan));
+  const handleCancelConfirm = (maKhoaHoc) => {
+    dispatch(cancelCourse(maKhoaHoc, user.taiKhoan));
     window.location.reload();
   };
   const columnsWait = [
@@ -68,7 +68,7 @@ export default function WaitCourse({ courseArr, user }) {
         <>
           <Button
             onClick={() => handleConfirm(course.maKhoaHoc)}
-            className="bg-red-500 px-2"
+            className="bg-blue-500 px-2"
             size="middle"
           >
             <a>Confirm</a>
@@ -76,7 +76,7 @@ export default function WaitCourse({ courseArr, user }) {
 
           <Button
             onClick={() => handleCancelConfirm(course.maKhoaHoc)}
-            className="bg-blue-500 px-2"
+            className="bg-red-500 px-2"
             size="middle"
           >
             <a>Cancel</a>
@@ -122,9 +122,9 @@ export default function WaitCourse({ courseArr, user }) {
   ];
   return (
     <div className=" ">
-      <div className="text-xl text-color4 py-5">Course Wait Confirm</div>
+      <div className="text-md text-color4 py-5">Course Wait Confirm</div>
       <Table columns={columnsWait} dataSource={courseArr} />
-      <div className="text-xl text-color4 py-5">Confirm</div>
+      <div className="text-md text-color4 py-5">Confirm</div>
       <Table columns={columnsConfirm} dataSource={confirmCourse} />
     </div>
   );

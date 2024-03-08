@@ -19,7 +19,44 @@ export default function ListCourse() {
     }
     window.scrollTo(0, 0);
   }, [user]);
+  const check = (course) => {
+    const checkNullValue = (course) => {
+      for (const key in course) {
+        if (course.hasOwnProperty(key)) {
+          const value = course[key];
 
+          // Kiểm tra giá trị của key
+          if (value === null) {
+            return false;
+          }
+
+          // Nếu giá trị là một object hoặc array, thực hiện kiểm tra đệ quy
+          if (typeof value === "object" && value !== null) {
+            if (Array.isArray(value)) {
+              // Nếu giá trị là một array, kiểm tra từng phần tử trong array
+              for (let i = 0; i < value.length; i++) {
+                if (!checkNullValue(value[i])) {
+                  return false; // Nếu có giá trị null, trả về false
+                }
+              }
+            } else {
+              // Nếu giá trị là một object, thực hiện kiểm tra đệ quy
+              if (!checkNullValue(value)) {
+                return false; // Nếu có giá trị null, trả về false
+              }
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    return checkNullValue(course);
+  };
+  // Lọc khóa học không có key NULL
+  const courseVaidArr = courseArr.filter((course) => {
+    return check(course);
+  });
   const settings = {
     infinite: true,
     slidesToShow: 4,
@@ -32,18 +69,21 @@ export default function ListCourse() {
   };
   return (
     <div className="pb-10 ">
+      {/* Banner */}
       <div>
         <CourseHot />
       </div>
-
+      {/* Tabs ở màn hình Mobile */}
       <div className="lg:hidden">
         <TabsAntd />
       </div>
+      {/* Tabs ở màn hình Desktop */}
       <div className="hidden lg:block">
         <div className="grid grid-cols-5">
           <div className="col-span-4">
             <TabsAntd />
           </div>
+          {/* Khóa học có lượt xem cao nhất */}
           <div className="col-span-1 hidden lg:block">
             {courseArr
               .slice() // Tạo một bản sao của mảng để tránh thay đổi mảng gốc
@@ -68,17 +108,17 @@ export default function ListCourse() {
           </div>
         </div>
       </div>
-
+      {/* Slider */}
       <div>
         <Slider {...settings}>
-          {courseArr.map((course, index) => (
+          {courseVaidArr.map((course, index) => (
             <div className="py-7" key={index}>
               <img src={course.hinhAnh} className=" h-[25vh] w-full" />
             </div>
           ))}
         </Slider>
       </div>
-
+      {/* List course  */}
       <div className="px-2 lg:px-10">
         <FilterCourse />
       </div>

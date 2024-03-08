@@ -6,17 +6,23 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   callCategoryCourse,
   callListCourse,
+  infoDetailUser,
 } from "../../redux/User/action/callApi";
 import MenuAccount from "./MenuAccount";
 import { Dropdown, Space } from "antd";
 import { MenuUnfoldOutlined } from "@ant-design/icons";
+import Shop from "./Shop";
 
 export default function HeaderPage() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.userSlice.user);
+  const detailUser = useSelector((state) => state.userSlice.detailUser);
   useEffect(() => {
     dispatch(callListCourse());
     dispatch(callCategoryCourse());
+    if (user) {
+      dispatch(infoDetailUser(user.taiKhoan));
+    }
   }, [dispatch]);
 
   const [visible, setVisible] = useState(false);
@@ -48,29 +54,32 @@ export default function HeaderPage() {
   ];
   const renderMobile = () => {
     return (
-      <div className="grid grid-cols-2 h-16  space-x-3 mx-3 font-thin ">
+      <div className="grid grid-cols-3 h-16  space-x-3 mx-3 font-thin ">
         <div className=" col-span-1 flex items-center justify-start space-x-5 cursor-pointer ">
           <NavLink to={"/"} className="flex items-center ">
             <h2 className="text-color4 text-2xl font-medium">Cybersoft</h2>
           </NavLink>
         </div>
 
-        <div className=" col-span-1 space-x-3 flex justify-end items-center ">
+        <div className=" col-span-2 space-x-3 flex justify-end items-center ">
           {user ? (
-            <Dropdown
-              menu={{
-                items,
-              }}
-              trigger={["click"]}
-              visible={visible}
-              onVisibleChange={(v) => setVisible(v)}
-            >
-              <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                  <MenuUnfoldOutlined className="text-3xl" />
-                </Space>
-              </a>
-            </Dropdown>
+            <div className="flex justify-center items-center space-x-2">
+              {detailUser && <Shop />}
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                trigger={["click"]}
+                visible={visible}
+                onVisibleChange={(v) => setVisible(v)}
+              >
+                <a onClick={(e) => e.preventDefault()}>
+                  <Space>
+                    <MenuUnfoldOutlined className="text-3xl" />
+                  </Space>
+                </a>
+              </Dropdown>
+            </div>
           ) : (
             <span className=" col-span-1 text-white font-medium">
               <MenuAccount />
@@ -96,7 +105,8 @@ export default function HeaderPage() {
             <span className="col-span-4">
               <SearchItem />
             </span>
-            <span className="col-span-1 font-medium">
+            <span className="col-span-1 font-medium  flex items-center justify-end space-x-5">
+              {detailUser && <Shop />}
               <MenuAccount />
             </span>
           </div>

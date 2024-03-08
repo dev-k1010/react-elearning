@@ -11,10 +11,23 @@ export default function ManagerUserPage() {
   const dispatch = useDispatch();
   const listUserArr = useSelector((state) => state.listUserSlice.listUserArr);
   const [options, setOptions] = useState([]);
+  const [searchUser, setSearchUser] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const filteredData = listUserArr.filter((user) => {
+    return Object.values(user).every(
+      (value) => value !== null && value.trim() !== ""
+    );
+  });
   useEffect(() => {
     dispatch(userArr());
   }, [dispatch]);
   const columns = [
+    {
+      title: "No",
+      dataIndex: "rowNumber",
+      key: "rowNumber",
+      render: (_, __, index) => (currentPage - 1) * 10 + index + 1,
+    },
     {
       title: "Name",
       dataIndex: "hoTen",
@@ -49,6 +62,11 @@ export default function ManagerUserPage() {
         }
         return <Tag color="red">Giáo vụ</Tag>;
       },
+
+      sorter: (a, b) => {
+        // Sắp xếp theo mã loại người dùng
+        return a.maLoaiNguoiDung.localeCompare(b.maLoaiNguoiDung);
+      },
     },
     {
       title: "Action",
@@ -64,11 +82,11 @@ export default function ManagerUserPage() {
           </Button>
 
           <Button
-            onClick={() => handleSetting(user.taiKhoan)}
+            onClick={() => handleEdit(user.taiKhoan)}
             className="bg-blue-500 px-2"
             size="middle"
           >
-            <a>Setting</a>
+            <a>Edit</a>
           </Button>
         </>
       ),
@@ -77,8 +95,16 @@ export default function ManagerUserPage() {
   const handleDelete = (values) => {
     dispatch(deleteUser(values));
   };
-  const handleSetting = (values) => {
-    navigate(`/setting/${values}`);
+  const handleEdit = (values) => {
+    if (values.trim() === "") {
+      console.log(
+        "Value is empty. Do something else or show an error message."
+      );
+      // Hoặc bạn có thể không thực hiện hành động nào đó khi giá trị là trống
+    } else {
+      console.log("🙂 ~ handleEdit ~ values:", values);
+      navigate(`/edit/${values}`);
+    }
   };
   const handleSearchUser = (values) => {
     const showSuggestions = values.length > 0;
@@ -87,62 +113,83 @@ export default function ManagerUserPage() {
         ? listUserArr
             .filter((user) => {
               const lowerCaseValue = unidecode(values.toLowerCase());
+
               return (
-                (user.taiKhoan &&
-                  unidecode(user.taiKhoan.toLowerCase()).includes(
-                    lowerCaseValue
-                  )) ||
-                (user.hoTen &&
-                  unidecode(user.hoTen.toLowerCase()).includes(
-                    lowerCaseValue
-                  )) ||
-                (user.email &&
-                  unidecode(user.email.toLowerCase()).includes(
-                    lowerCaseValue
-                  )) ||
-                (user.soDt &&
-                  unidecode(user.soDt.toLowerCase()).includes(lowerCaseValue))
+                user.taiKhoan &&
+                unidecode(user.taiKhoan.toLowerCase()).includes(lowerCaseValue)
               );
             })
             .map((user) => ({
               value: user.taiKhoan || user.hoTen || user.email || user.soDt,
-              label: user.taiKhoan || user.hoTen || user.email || user.soDt,
+              label: user.taiKhoan,
             }))
         : [];
     setOptions(filteredOptions);
-  };
 
+    const fillterUser =
+      showSuggestions && listUserArr
+        ? listUserArr.filter((user) => {
+            const lowerCaseValue = unidecode(values.toLowerCase());
+            return (
+              user.taiKhoan &&
+              unidecode(user.taiKhoan.toLowerCase()).includes(lowerCaseValue)
+            );
+          })
+        : [];
+    setSearchUser(fillterUser);
+  };
+  const onPageChange = (page) => {
+    setCurrentPage(page);
+  };
   return (
     <div className="space-y-5 p-10">
-      <div>
-        <AutoComplete
-          className="w-full"
-          options={options}
-          style={{
-            width: 200,
-          }}
-          onSelect={(values) => {
-            navigate(`/setting/${values}`);
-          }}
-          onSearch={handleSearchUser}
-          placeholder="Search for a user"
-        >
-          <Input
-            className=" rounded-3xl"
-            suffix={
-              <SearchOutlined className="transition duration-300 hover:text-color4 " />
+      <div className="flex justify-end items-center space-x-5">
+        {/* Search*/}
+        <div>
+          <AutoComplete
+            options={options}
+            style={{
+              width: 500,
+            }}
+            onSelect={(values) => {
+              navigate(`/edit/${values}`);
+            }}
+            onSearch={handleSearchUser}
+            placeholder="Search for a username"
+            notFoundContent={
+              <p className="text-red-500  text-center">No matching results</p>
             }
-            allowClear
-          />
-        </AutoComplete>
+          >
+            <Input
+              className=" rounded-3xl"
+              suffix={
+                <SearchOutlined className="transition duration-300 hover:text-color4 " />
+              }
+              allowClear
+            />
+          </AutoComplete>
+        </div>
+        {/* Add */}
+        <div>
+          <button
+            onClick={() => navigate("/addUser")}
+            className="px-8 py-3 bg-color3 text-white rounded-2xl"
+            j
+          >
+            Add user
+          </button>
+        </div>
       </div>
-      <button
-        onClick={() => navigate("/addUser")}
-        className="px-6 py-4 bg-color3 text-white rounded-2xl"
-      >
-        Add user
-      </button>
-      <Table columns={columns} dataSource={listUserArr} />
+      {/* List */}
+      <Table
+        columns={columns}
+        dataSource={searchUser.length > 0 ? searchUser : filteredData}
+        pagination={{
+          pageSize: 10,
+          current: currentPage,
+          onChange: onPageChange,
+        }}
+      />
     </div>
   );
 }

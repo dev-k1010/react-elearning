@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 
 export default function FilterCourse() {
   const courseArr = useSelector((state) => state.dataSlice.listCourseArr);
+  
   const filter = [
     {
       key: "1",

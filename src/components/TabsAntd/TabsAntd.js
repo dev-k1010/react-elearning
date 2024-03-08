@@ -9,7 +9,44 @@ export default function TabsAntd() {
   const courseArr = useSelector((state) => state.dataSlice.listCourseArr);
   const user = useSelector((state) => state.userSlice.user);
   const detailUser = useSelector((state) => state.userSlice.detailUser);
+  const check = (course) => {
+    const checkNullValue = (course) => {
+      for (const key in course) {
+        if (course.hasOwnProperty(key)) {
+          const value = course[key];
 
+          // Kiểm tra giá trị của key
+          if (value === null) {
+            return false;
+          }
+
+          // Nếu giá trị là một object hoặc array, thực hiện kiểm tra đệ quy
+          if (typeof value === "object" && value !== null) {
+            if (Array.isArray(value)) {
+              // Nếu giá trị là một array, kiểm tra từng phần tử trong array
+              for (let i = 0; i < value.length; i++) {
+                if (!checkNullValue(value[i])) {
+                  return false; // Nếu có giá trị null, trả về false
+                }
+              }
+            } else {
+              // Nếu giá trị là một object, thực hiện kiểm tra đệ quy
+              if (!checkNullValue(value)) {
+                return false; // Nếu có giá trị null, trả về false
+              }
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    return checkNullValue(course);
+  };
+  // Lọc khóa học không có key NULL
+  const courseVaidArr = courseArr.filter((course) => {
+    return check(course);
+  });
   const settings = {
     className: "center",
     infinite: true,
@@ -61,7 +98,7 @@ export default function TabsAntd() {
       key: "1",
       label: "Most popular",
       children: renderCardItems(
-        courseArr
+        courseVaidArr
           .slice()
           .sort((a, b) => b.luotXem - a.luotXem)
           .slice(0, 15),
@@ -72,7 +109,7 @@ export default function TabsAntd() {
       key: "2",
       label: "New",
       children: renderCardItems(
-        courseArr.filter(
+        courseVaidArr.filter(
           (course) =>
             course.danhMucKhoaHoc.maDanhMucKhoahoc === `TuDuy` ||
             course.danhMucKhoaHoc.maDanhMucKhoahoc === `DiDong`
@@ -84,7 +121,7 @@ export default function TabsAntd() {
       key: "3",
       label: "Trend",
       children: renderCardItems(
-        courseArr.filter((course) =>
+        courseVaidArr.filter((course) =>
           ["FrontEnd", "BackEnd", "FullStack"].includes(
             course.danhMucKhoaHoc.maDanhMucKhoahoc
           )
@@ -102,11 +139,7 @@ export default function TabsAntd() {
     >
       {items.map((item) => (
         <TabPane
-          tab={
-            <span  className=" text-black text-xs">
-              {item.label}
-            </span>
-          }
+          tab={<span className=" text-black text-xs">{item.label}</span>}
           key={item.key}
         >
           {item.children}

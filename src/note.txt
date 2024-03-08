@@ -1,311 +1,708 @@
-import { Button, Form, Input, Modal, Select } from "antd";
+
+
+import { Button, DatePicker, Form, Input, Select, Space } from "antd";
+import TextArea from "antd/es/input/TextArea";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser, listUser } from "../../redux/User/action/callApi";
+import { useNavigate } from "react-router-dom";
+import moment from "moment";
+import {
+  addCourse,
+  addCourseImg,
+} from "../../../redux/Admin/action/callAdminApi";
 
-export default function SignUpPage() {
-  const listUserArr = useSelector((state) => state.userSlice.listUser);
+export default function AddCourse() {
+  const listCategoryArr = useSelector(
+    (state) => state.dataSlice.categoryCourse
+  );
+  const user = useSelector((state) => state.userSlice.user);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const [showHelp, setShowHelp] = useState(false);
+  const [urlHinhAnh, setUrlHinhAnh] = useState();
+  const [hinhAnh, setHinhAnh] = useState();
+
+  // Hiển thị options Danh mục cho người dùng chọn
+  const optionsCategory = listCategoryArr.map((name, index) => ({
+    value: name.maDanhMuc,
+    label: name.maDanhMuc,
+  }));
+
   useEffect(() => {
     form.setFieldsValue({
-      taiKhoan: String(""),
-      matKhau: String(""),
-      hoTen: String(""),
-      soDt: String(""),
-      maLoaiNguoiDung: String(""),
-      maNhom: String(""),
-      email: String(""),
+      maKhoaHoc: "",
+      biDanh: "",
+      moTa: "",
+      luotXem: 0,
+      danhGia: 0,
+      maNhom: user.maNhom,
+      ngayTao: moment(),
+      maDanhMucKhoaHoc: "",
+      taiKhoanNguoiTao: user.taiKhoan,
+      file: "",
     });
-    dispatch(listUser());
-  }, [form]);
+  }, [form, user.maNhom, user.taiKhoan]);
+
+  const onChange = (date, dateString) => {
+    // Cập nhật giá trị của trường ngayTao
+    form.setFieldsValue({
+      ngayTao: dateString,
+    });
+  };
 
   const onFinish = (values) => {
-    const isFormValid = form
-      .getFieldsError()
-      .every((field) => field.errors.length === 0);
+    console.log("🙂 ~ onFinish ~ values:", values);
+    // Lấy tên file từ values.hinhAnh.name
+    let tenKhoaHoc = values.hinhAnh.name;
 
-    setShowHelp(!isFormValid || form.isFieldsTouched());
-
-    const duplicateFields = Object.keys(values).filter((key) => {
-      return listUserArr.some(
-        (user) => user.hasOwnProperty(key) && values[key] === user[key]
-      );
+    let acceptedExtensions = ["jpg", "jpeg", "png", "gif"];
+    acceptedExtensions.forEach((extension) => {
+      tenKhoaHoc = tenKhoaHoc.replace(new RegExp(`\\.${extension}$`, "ig"), "");
     });
 
-    if (duplicateFields.length > 0) {
-      Modal.error({
-        title: "Duplicate Values",
-        content: (
-          <div>
-            <p>The values for the following fields are already in use:</p>
-            <ul>
-              {duplicateFields.map((field) => (
-                <li className="text-red-700" key={field}>
-                  {field}
-                </li>
-              ))}
-            </ul>
-            <p>Please choose different values.</p>
-          </div>
-        ),
-        okButtonProps: {
-          className: "bg-red-500 text-white",
-        },
-      });
-    } else {
-      dispatch(addUser(values));
-    }
+    // Thay thế dấu gạch ngang bằng dấu cách
+    tenKhoaHoc = tenKhoaHoc.replace(/-/g, " ");
+
+    const formData = new FormData();
+    formData.append("tenKhoaHoc", tenKhoaHoc);
+    formData.append("file", values.hinhAnh);
+
+    const modifiedValues = {
+      ...values,
+      tenKhoaHoc: tenKhoaHoc,
+      hinhAnh: values.hinhAnh.name,
+      taiKhoanNguoiTao: user.taiKhoan,
+      formUpload: formData,
+    };
+    console.log("🙂 ~ onFinish ~ modifiedValues:", modifiedValues);
+
+    // // Gọi hàm dispatch
+    dispatch(addCourse(modifiedValues));
   };
-  const onValuesChange = () => {
-    setShowHelp(true); // Hiển thị lỗi ngay khi có sự thay đổi
+  const validateDate = (rule, value) => {
+    if (value && !moment(value, "DD/MM/YYYY", true).isValid()) {
+      return Promise.reject(
+        "Please enter a valid date in the format DD/MM/YYYY"
+      );
+    }
+    return Promise.resolve();
   };
 
-  const options = [
+  return (
+    <div>
+      <Form
+        onFinish={onFinish}
+        form={form}
+        // onValuesChange={(changedValues, allValues) => {
+        //   // Kiểm tra xem trường tenKhoaHoc có thay đổi không
+        //   if ("tenKhoaHoc" in changedValues) {
+        //     // Lấy giá trị mới của tenKhoaHoc
+        //     const newTenKhoaHoc = `https://elearningnew.cybersoft.edu.vn/hinhanh/${changedValues.tenKhoaHoc}_gp09.png`;
+        //     // Cập nhật state và sử dụng nó để cập nhật hinhAnh
+        //     setUrlHinhAnh(newTenKhoaHoc);
+        //   }
+        // }}
+        className="p-10"
+      >
+        <div className="grid grid-cols-2 space-x-5 justify-center items-center ">
+          {/* mã khóa học */}
+          <Form.Item
+            name="maKhoaHoc"
+            label="ID course"
+            rules={[
+              {
+                required: true,
+                message: "Please input your ID course!",
+              },
+              {
+                pattern: /^[a-zA-Z0-9]+$/,
+                message:
+                  "ID course should not contain spaces or special characters!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          {/* tên khóa học */}
+          {/* <Form.Item
+            name="tenKhoaHoc"
+            label="Name course"
+            rules={[
+              {
+                required: true,
+                message: "Please input your Name course!",
+              },
+              {
+                pattern: /^[a-zA-Z\s]+$/,
+                message: "Name course contain letters and spaces!",
+              },
+            ]}
+          >
+            <Input disabled={true} />
+          </Form.Item> */}
+          {/* lượt xem */}
+          <Form.Item name="luotXem" label="View">
+            <Input type="number" />
+          </Form.Item>
+          {/* đánh giá */}
+          <Form.Item name="danhGia" label="Review">
+            <Input type="number" />
+          </Form.Item>
+          {/* bí danh */}
+          <Form.Item
+            name="biDanh"
+            label="Alias"
+            rules={[
+              {
+                required: true,
+                message: "Please input your Alias!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          {/* mã nhóm */}
+          <Form.Item name="maNhom" label="ID Group">
+            <Input disabled={true} />
+          </Form.Item>
+          {/* mã danh mục */}
+          <Form.Item
+            name="maDanhMucKhoaHoc"
+            label="ID category"
+            rules={[
+              {
+                required: true,
+                message: "Please select ID category!",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Select ID category"
+              style={{
+                width: 200,
+              }}
+              options={optionsCategory}
+              optionFilterProp="label"
+            />
+          </Form.Item>
+          {/* ngày tạo */}
+          <Form.Item
+            name="ngayTao"
+            label="Date"
+            rules={[
+              {
+                required: true,
+                message: "Please input the date!",
+              },
+              {
+                validator: validateDate,
+              },
+            ]}
+          >
+            <Space direction="vertical">
+              <DatePicker onChange={onChange} format="DD/MM/YYYY" />
+            </Space>
+          </Form.Item>
+        </div>
+        <div className="grid grid-cols-4 space-x-5">
+          {/* hình ảnh */}
+          <Form.Item
+            name="hinhAnh"
+            label="Image"
+            rules={[
+              {
+                required: true,
+                message: "Please input your ID course!",
+              },
+            ]}
+          >
+            <input
+              type="file"
+              accept="image/jpg, image/jpeg, image/png, image/gif"
+              className="p-0"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                  setHinhAnh(e.target.result);
+                };
+                // Sử dụng form.setFieldsValue để đặt giá trị cho trường hinhAnh
+                form.setFieldsValue({
+                  hinhAnh: file,
+                });
+              }}
+            />
+            <div className="flex mb-2">
+              <p className="m-0 font-semibold w-40 text-right pr-2"></p>
+              {hinhAnh && (
+                <img
+                  src={hinhAnh}
+                  alt="..."
+                  className="w-40 h-40 bg-gray-200"
+                />
+              )}
+            </div>
+          </Form.Item>
+          {/* mô tả */}
+          <Form.Item
+            name="moTa"
+            label="Description"
+            className="col-span-3"
+            rules={[
+              {
+                required: true,
+                message: "Please input your ID course!",
+              },
+            ]}
+          >
+            <TextArea rows={4} placeholder="Description course" />
+          </Form.Item>
+          {/* nút thêm */}
+        </div>
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
+          <Button
+            className="bg-color3 text-white hover:bg-color4 hover:text-black border-none w-32"
+            htmlType="submit"
+          >
+            Add course
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+}
+
+//
+//
+// THỰC HIỆN CHỨC NĂNG THÊM KHÓA HỌC UPLOAD ẢNH
+
+
+
+/// Edit courseimport {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Space,
+  Tabs,
+  Upload,
+} from "antd";
+import TextArea from "antd/es/input/TextArea";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import dayjs from "dayjs";
+import { callListCourse } from "../../../redux/User/action/callApi";
+
+export default function EditCourse() {
+  dayjs.extend(customParseFormat);
+  const dispatch = useDispatch();
+  const { idCourse } = useParams();
+  const listCourseArr = useSelector((state) => state.dataSlice.listCourseArr);
+  const course = listCourseArr.find((course) => {
+    return course.maKhoaHoc === idCourse;
+  });
+  const listCategoryArr = useSelector(
+    (state) => state.dataSlice.categoryCourse
+  );
+  const [form] = Form.useForm();
+  useEffect(() => {
+    dispatch(callListCourse());
+  }, []);
+  useEffect(() => {
+    // Kiểm tra xem course có dữ liệu không trước khi cập nhật form
+    if (course) {
+      form.setFieldsValue(course);
+    }
+  }, [course, form]);
+  useEffect(() => {
+    // Kiểm tra xem giá trị ngayTao có được lưu trong localStorage không
+    const ngayTaoValue = localStorage.getItem("ngayTao");
+
+    // Nếu có giá trị ngayTao từ localStorage và course có giá trị, cập nhật giá trị cho trường ngayTao
+    if (ngayTaoValue && course) {
+      form.setFieldsValue({
+        ngayTao: ngayTaoValue,
+      });
+    }
+  }, [form, course]);
+  const onChange = (date, dateString) => {
+    // Cập nhật giá trị của trường ngayTao
+    form.setFieldsValue({
+      ngayTao: dateString,
+    });
+
+    // Lưu giá trị vào localStorage
+    localStorage.setItem("ngayTao", dateString);
+  };
+  const onFinish = (values) => {
+    console.log("🙂 ~ onFinish ~ values:", values);
+  };
+
+  const optionsCategory = listCategoryArr.map((name, index) => ({
+    key: index,
+    value: name.maDanhMuc,
+    label: name.maDanhMuc,
+  }));
+  const items = [
     {
-      value: "GP09",
-      label: "GP09",
+      key: "1",
+      label: "Info User",
+      children: (
+        <Form
+          onFinish={onFinish}
+          initialValue={""}
+          form={form}
+          className="grid grid-cols-2 space-x-5 p-20"
+        >
+          <Form.Item name="maKhoaHoc" label="ID course">
+            <Input />
+          </Form.Item>
+          <Form.Item name="biDanh" label="Alias">
+            <Input />
+          </Form.Item>
+          <Form.Item name="tenKhoaHoc" label="Name course">
+            <Input />
+          </Form.Item>
+          <Form.Item name="luotXem" label="View">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="soLuongHocVien" label="Số lượng học viên">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="maNhom" label="ID Group">
+            <Input disabled={true} />
+          </Form.Item>
+          <Form.Item
+            name={["danhMucKhoaHoc", "maDanhMucKhoahoc"]}
+            label="ID category"
+            rules={[
+              {
+                required: true,
+                message: "Please select date!",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Select ID category"
+              style={{
+                width: 200,
+              }}
+              options={optionsCategory}
+              optionFilterProp="label"
+            />
+          </Form.Item>
+
+          <div className="flex mb-2">
+            <p className="m-0 font-semibold w-40 text-right pr-2">Hình ảnh: </p>
+            <input
+              type="file"
+              accept="image/jpg, image/jpeg, image/png, image/gif"
+              className="p-0"
+              // onChange={(e) => {
+              // lấy file đã chọn
+              // const file = e.target.files[0];
+              // tạo đối tượng đọc file
+              // const reader = new FileReader();
+              // reader.readAsDataURL(file);
+              // reader.onload = (e) => {
+              // setUrlHinhAnh(e.target.result);
+              // };
+              // setValue("hinhAnh", file);
+              // }}
+            />
+            <p className="m-0 text-red-500 h-5 pl-2 w-60"></p>
+          </div>
+          <Form.Item
+            name="ngayTao"
+            label="Date"
+            rules={[
+              {
+                required: true,
+                message: "Please select date!",
+              },
+            ]}
+          >
+            <Space direction="vertical">
+              <DatePicker
+                onChange={onChange}
+                defaultValue={
+                  dayjs(course?.ngayTao, "DD/MM/YYYY").isValid()
+                    ? dayjs(course?.ngayTao, "DD/MM/YYYY")
+                    : undefined
+                }
+                format="DD/MM/YYYY"
+              />
+            </Space>
+          </Form.Item>
+          <Form.Item name={["nguoiTao", "hoTen"]} label="Creator">
+            <Input disabled={true} />
+          </Form.Item>
+          <Form.Item name="moTa" label="Description">
+            <TextArea rows={4} placeholder="Description course" />
+          </Form.Item>
+          <Form.Item
+            wrapperCol={{
+              offset: 8,
+              span: 16,
+            }}
+          >
+            <Button
+              className="bg-color3 text-white hover:bg-color4 hover:text-black border-none w-32"
+              htmlType="submit"
+            >
+              Add course
+            </Button>
+          </Form.Item>
+        </Form>
+      ),
     },
   ];
   return (
-    <div
-      style={{
-        backgroundImage: `url("./IMG/bg3.jpg")`,
-      }}
-    >
-      <div className=" grid grid-cols-1 overflow-hidden items-center justify-center h-screen w-screen md:px-10 lg:px-40">
-        <Form
-          className="backdrop-blur-lg bg-white/20 grid grid-cols-1 md:grid-cols-5 lg:grid-cols-8 items-center justify-center rounded-2xl p-5 md:space-x-3 "
-          onFinish={onFinish}
-          onValuesChange={onValuesChange}
-          initialValue={""}
-          form={form}
-        >
-          <span className="hidden md:block md:col-span-3 lg:col-span-5 ">
-            <div className="md:h-full md:w-full md:grid md:grid-cols-1 justify-center items-center">
-              <img src="./IMG/web.jpg" alt="" />
-            </div>
-          </span>
-          <div className="lg:col-span-3 col-span-2 h-full w-full grid grid-cols-1 items-center justify-center">
-            <Form.Item
-              name="taiKhoan"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your username!",
-                },
-                {
-                  pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-                  message: "Include  8 characters and numbers",
-                },
-              ]}
-              help={
-                showHelp &&
-                form
-                  .getFieldsError()
-                  .find((item) => item.name === "taiKhoan")
-                  ?.errors.map((error) => (
-                    <div
-                      key={error.status}
-                      style={{
-                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                      }}
-                    >
-                      {error.message}
-                    </div>
-                  ))
-              }
-              valuePropName="value"
-            >
-              <Input
-                placeholder="Username"
-                onChange={(e) => {
-                  form.setFieldsValue({
-                    taiKhoan: String(e.target.value),
-                  });
-                }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="matKhau"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your password!",
-                },
-                {
-                  pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-                  message: "Include  8 characters and numbers",
-                },
-              ]}
-              help={
-                showHelp &&
-                form
-                  .getFieldsError()
-                  .find((item) => item.name === "matKhau")
-                  ?.errors.map((error) => (
-                    <div
-                      key={error.status}
-                      style={{
-                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                      }}
-                    >
-                      {error.message}
-                    </div>
-                  ))
-              }
-            >
-              <Input.Password
-                placeholder="Password"
-                onChange={(e) => {
-                  form.setFieldsValue({
-                    matKhau: String(e.target.value),
-                  });
-                }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="hoTen"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your name!",
-                },
-                {
-                  pattern: /^[a-zA-Z\u00C0-\u1EF3\s]+$/,
-                  message: "Should not contain numbers or special characters",
-                },
-              ]}
-              help={
-                showHelp &&
-                form
-                  .getFieldsError()
-                  .find((item) => item.name === "hoTen")
-                  ?.errors.map((error) => (
-                    <div
-                      key={error.status}
-                      style={{
-                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                      }}
-                    >
-                      {error.message}
-                    </div>
-                  ))
-              }
-            >
-              <Input
-                placeholder="Fullname"
-                onChange={(e) => {
-                  form.setFieldsValue({
-                    hoTen: String(e.target.value),
-                  });
-                }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="soDt"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your phone number!",
-                },
-                {
-                  pattern: /^[0-9]{10}$/,
-                  message: "Phone number must consist of 10 digits",
-                },
-              ]}
-              help={
-                showHelp &&
-                form
-                  .getFieldsError()
-                  .find((item) => item.name === "soDt")
-                  ?.errors.map((error) => (
-                    <div
-                      key={error.status}
-                      style={{
-                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                      }}
-                    >
-                      {error.message}
-                    </div>
-                  ))
-              }
-            >
-              <Input
-                placeholder="Phone number"
-                onChange={(e) => {
-                  form.setFieldsValue({
-                    soDt: String(e.target.value),
-                  });
-                }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter a valid email!",
-                },
-                {
-                  pattern: /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
-                  message: "Please enter a valid email!",
-                },
-              ]}
-              help={
-                showHelp &&
-                form
-                  .getFieldsError()
-                  .find((item) => item.name === "email")
-                  ?.errors.map((error) => (
-                    <div
-                      key={error.status}
-                      style={{
-                        color: error.status === "error" ? "#ff4d4f" : "#bfbfbf",
-                      }}
-                    >
-                      {error.message}
-                    </div>
-                  ))
-              }
-            >
-              <Input placeholder="Email" />
-            </Form.Item>
-            <Form.Item
-              name="maNhom"
-              rules={[
-                {
-                  required: true,
-                  message: "Please select ID!",
-                },
-              ]}
-            >
-              <Select
-                placeholder="ID"
-                style={{
-                  width: 120,
-                }}
-                options={options}
-              />
-            </Form.Item>
-            <Form.Item
-              wrapperCol={{
-                offset: 8,
-                span: 16,
-              }}
-            >
-              <Button
-                className="bg-color3 text-white hover:bg-color4 hover:text-black border-none w-32"
-                htmlType="submit"
-              >
-                SignUp
-              </Button>
-            </Form.Item>
-          </div>
-        </Form>
+    <div>
+      <div>
+        <Tabs
+          className="mx-2 md:mx-10 lg:mx-40"
+          defaultActiveKey="1"
+          items={items}
+        />
       </div>
     </div>
   );
 }
- let {idUser} = useParams()
+
+///
+ const check = (course) => {
+    const checkNullValue = (course) => {
+      for (const key in course) {
+        if (course.hasOwnProperty(key)) {
+          const value = course[key];
+
+          // Kiểm tra giá trị của key
+          if (value === null) {
+            return false;
+          }
+
+          // Nếu giá trị là một object hoặc array, thực hiện kiểm tra đệ quy
+          if (typeof value === "object" && value !== null) {
+            if (Array.isArray(value)) {
+              // Nếu giá trị là một array, kiểm tra từng phần tử trong array
+              for (let i = 0; i < value.length; i++) {
+                if (!checkNullValue(value[i])) {
+                  return false; // Nếu có giá trị null, trả về false
+                }
+              }
+            } else {
+              // Nếu giá trị là một object, thực hiện kiểm tra đệ quy
+              if (!checkNullValue(value)) {
+                return false; // Nếu có giá trị null, trả về false
+              }
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    return checkNullValue(course);
+  };
+  ///
+  ////
+  ///
+  ///
+  import React, { useEffect, useState } from "react";
+import { Space, Pagination, Dropdown, Menu } from "antd";
+import { BarsOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
+import CardItem from "../Card/CardItem";
+import { useSelector } from "react-redux";
+
+export default function Filter({ courseArr, filter, sortBy }) {
+  const user = useSelector((state) => state.userSlice.user);
+  const detailUser = useSelector((state) => state.userSlice.detailUser);
+
+  // Array khóa học
+  const [currentCoursesArr, setCurrentCoursesArr] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [hoveredItem, setHoveredItem] = useState(null);
+  // Phân trang
+  const pageSize = 10;
+  const totalCourses = currentCoursesArr.length;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  useEffect(() => {
+    const filterState = sessionStorage.getItem("filterState");
+    if (filterState) {
+      setCurrentCoursesArr(JSON.parse(filterState));
+    } else {
+      setCurrentCoursesArr(courseArr);
+    }
+  }, [courseArr]);
+  // Xử lý logic
+  const handleDropDown = (item) => {
+    const filterMap = {
+      1: (course) => true,
+      2: (course) =>
+        ["FrontEnd", "BackEnd", "FullStack"].includes(
+          course.danhMucKhoaHoc.maDanhMucKhoahoc
+        ),
+      "2-1": (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "FrontEnd",
+      "2-2": (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "BackEnd",
+      "2-3": (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "FullStack",
+      3: (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "DiDong",
+      4: (course) =>
+        ["TuDuy", "Design"].includes(course.danhMucKhoaHoc.maDanhMucKhoahoc),
+      "4-1": (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "TuDuy",
+      "4-2": (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "Design",
+    };
+
+    const filteredList = courseArr.filter(filterMap[item]);
+    setCurrentCoursesArr(filteredList);
+    setCurrentPage(1);
+    sessionStorage.setItem("filterState", JSON.stringify(filteredList));
+  };
+
+  const handleSortBy = (item) => {
+    sortOrder === "desc" ? setSortOrder("asc") : setSortOrder("desc");
+    const sortedCourses = [...currentCoursesArr].sort((a, b) => {
+      if (item.key === "1") {
+        return sortOrder === "desc"
+          ? a.luotXem - b.luotXem
+          : b.luotXem - a.luotXem;
+      } else {
+        return 0;
+      }
+    });
+
+    setCurrentCoursesArr(sortedCourses);
+    setCurrentPage(1);
+
+    // Lưu trạng thái filter vào sessionStorage
+    sessionStorage.setItem("filterState", JSON.stringify(sortedCourses));
+  };
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  // Render UI
+  const renderFilterMenu = () => (
+    <Menu>
+      {filter.map((item) => (
+        <Menu.Item
+          key={item.key}
+          onMouseEnter={() => setHoveredItem(item.key)}
+          onMouseLeave={() => setHoveredItem(null)}
+          className="text-xs"
+        >
+          <span onClick={() => handleDropDown(item.key)}>{item.label}</span>
+          <span>
+            {item.key === hoveredItem && item.children && (
+              <Menu
+                className="absolute top-0 left-full text-xs"
+                // style={{ fontSize: "1vw" }}
+              >
+                {item.children.map((child) => (
+                  <Menu.Item
+                    key={child.key}
+                    onClick={() => handleDropDown(child.key)}
+                  >
+                    <span>{child.label}</span>
+                  </Menu.Item>
+                ))}
+              </Menu>
+            )}
+          </span>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+  const renderSortByMenu = () => (
+    <Menu>
+      {sortBy.map((item) => (
+        <Menu.Item
+          key={item.key}
+          onClick={() => handleSortBy(item)}
+          onMouseEnter={() => setHoveredItem(item.key)}
+          onMouseLeave={() => setHoveredItem(null)}
+          className="text-xs"
+        >
+          <span className="mr-2">{item.label}</span>
+          <span>
+            {item.key === "1" &&
+              (sortOrder === "desc" ? (
+                <UpOutlined style={{ fontSize: "0.8vw" }} />
+              ) : (
+                <DownOutlined style={{ fontSize: "0.8vw" }} />
+              ))}
+          </span>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+  const renderDropdown = (menu, label) => (
+    <Dropdown
+      arrow
+      className="cursor-pointer border border-color3"
+      trigger={["click"]}
+      overlay={menu}
+    >
+      <span
+        style={{ fontSize: "1.25vw" }}
+        className="p-2 flex items-center justify-start text-xs"
+      >
+        <Space>
+          <span className=" font-bold">{label}</span>
+          <BarsOutlined />
+        </Space>
+      </span>
+    </Dropdown>
+  );
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-6 space-y-5 md:space-y-0">
+      <div className=" col-span-2 lg:col-span-1 flex md:space-x-4">
+        <div>{renderDropdown(renderFilterMenu(), "Filter")}</div>
+        <div>{renderDropdown(renderSortByMenu(), "Sort by")}</div>
+      </div>
+      <div className="flex flex-col justify-center items-center col-span-5 lg:col-span-5 space-y-10">
+        <div className="grid grid-cols-1 space-y-1">
+          {currentCoursesArr
+            .slice(startIndex, endIndex)
+            .map((course, index) => {
+              return (
+                <CardItem
+                  course={course}
+                  stypeCard={2}
+                  isBestSeller={false}
+                  key={index}
+                  isHomePage={true}
+                  detailUser={detailUser}
+                  user={user}
+                />
+              );
+            })}
+        </div>
+        <div className="pagination-container">
+          <Pagination
+            current={currentPage}
+            total={totalCourses}
+            pageSize={pageSize}
+            onChange={handlePageChange}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+   <div className="flex items-center justify-between ">
+                  <span>{`${category.maDanhMuc}`}</span>
+                  <span>{`(${filteredCourses.length} course)`}</span>
+                </div>
+              ),

@@ -2,27 +2,27 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { updateUserAdmin } from "../../../redux/Admin/action/callAdminApi";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Form, Input, Select, Tabs, message } from "antd";
+import { Breadcrumb, Button, Form, Input, Select, Tabs, message } from "antd";
 import { https } from "../../../service/config";
 import WaitCourse from "./WaitCourse";
 
-export default function SettingUser() {
+export default function EditUser() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const listCourseArr = useSelector((state) => state.dataSlice.listCourseArr);
   const { idUser } = useParams();
   const [user, setUser] = useState({});
-  console.log("🙂 ~ SettingUser ~ user:", user)
+  const listCourseArr = useSelector((state) => state.dataSlice.listCourseArr);
   const [waitList, setWaitList] = useState([]);
+  const [form] = Form.useForm();
+  const [activeTab, setActiveTab] = useState("1");
   const courseArr = listCourseArr.filter((course) =>
     waitList
       .map((waitCourse) => waitCourse.maKhoaHoc)
       .includes(course.maKhoaHoc)
   );
-  const [form] = Form.useForm();
-
-  const fectdata = () => {
-    https(`/api/QuanLyNguoiDung/TimKiemNguoiDung?MaNhom=GP09&tuKhoa=${idUser}`)
+  // Tìm kiếm khóa học
+  const infoUser = (values) => {
+    https(`/api/QuanLyNguoiDung/TimKiemNguoiDung?MaNhom=GP09&tuKhoa=${values}`)
       .then((res) => {
         let userDetail = res.data.find((user) => user);
         setUser(userDetail);
@@ -33,6 +33,7 @@ export default function SettingUser() {
         message.error(err.response.data);
       });
   };
+  // Lấy danh sách duyệt chờ xét duyệt
   const courseRegister = (values) => {
     https
       .post("/api/QuanLyNguoiDung/LayDanhSachKhoaHocChoXetDuyet", values)
@@ -44,11 +45,18 @@ export default function SettingUser() {
       });
   };
   useEffect(() => {
-    fectdata();
+    const storedActiveTab = localStorage.getItem("activeTab");
+    if (storedActiveTab) {
+      setActiveTab(storedActiveTab);
+    }
+  }, []);
+  useEffect(() => {
+    infoUser(idUser);
   }, [idUser]);
   useEffect(() => {
     form.setFieldsValue(user);
   }, [user]);
+
   const onFinish = (values) => {
     dispatch(updateUserAdmin(values));
     navigate("/managerUser");
@@ -146,12 +154,31 @@ export default function SettingUser() {
       ),
     },
   ];
+  const handleNavigation = () => {
+    // Thực hiện các xử lý khác nếu cần thiết
+    navigate("/managerUser");
+  };
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    localStorage.setItem("activeTab", key);
+  };
   return (
-    <div>
+    <div className="space-y-5 p-10">
       <div>
+        <Breadcrumb
+          items={[
+            {
+              title: <a onClick={handleNavigation}>Manager user</a>,
+            },
+            {
+              title: "Edit user",
+            },
+          ]}
+        />
         <Tabs
           className="mx-2 md:mx-10 lg:mx-40"
-          defaultActiveKey="1"
+          activeKey={activeTab} // Đặt activeKey để điều khiển tab đang hoạt động
+          onChange={handleTabChange} // Thêm bộ xử lý onChange
           items={items}
         />
       </div>

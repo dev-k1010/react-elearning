@@ -1,9 +1,15 @@
 import { message } from "antd";
 import { https } from "../../../service/config";
 import { setListUserArr } from "../listUserSlice";
-import { setWaitList } from "../listCourseSlice";
+import {
+  setCourseArr,
+  setDetail,
+  setListConfirm,
+  setListPendingConfirm,
+} from "../listCourseSlice";
 //
 // Quản lý User
+//
 // Danh sách User
 export let userArr = (values) => {
   return (dispatch) => {
@@ -26,7 +32,7 @@ export let deleteUser = (values) => {
     https
       .delete(`/api/QuanLyNguoiDung/XoaNguoiDung?TaiKhoan=${values}`)
       .then((res) => {
-        message.success("Xóa thành công");
+        message.success("Delete user success");
         dispatch(userArr());
       })
       .catch((err) => {
@@ -41,44 +47,32 @@ export let addUserAdmin = (values) => {
     https
       .post("api/QuanLyNguoiDung/ThemNguoiDung", values)
       .then((res) => {
-        message.success("Thêm thành công");
+        message.success("Add user success");
       })
       .catch((err) => {
         console.log("🙂 ~ return ~ err:", err);
-
         message.error(err.response.data);
       });
   };
 };
 // Update User
 export let updateUserAdmin = (values) => {
-  console.log("🙂 ~ updateUserAdmin ~ values:", values);
   return (dispatch) => {
     https
       .put(`/api/QuanLyNguoiDung/CapNhatThongTinNguoiDung`, values)
       .then((res) => {
-        message.success("Update success");
+        console.log("🙂 ~ .then ~ res:", res.data);
+        // message.success("Update success");
       })
       .catch((err) => {
-        message.err("Update error");
+        console.log("🙂 ~ return ~ err:", err);
+        // message.err("Update error");
       });
   };
 };
 //
 // Quản lý Course
 //
-// Danh sách khóa học chờ xét duyệt
-export let waitListCourseRegister = (values) => {
-  return (dispatch) => {
-    https
-      .post("/api/QuanLyNguoiDung/LayDanhSachKhoaHocChoXetDuyet", values)
-      .then((res) => {
-        console.log("🙂 ~ .then ~ res:", res);
-        dispatch(setWaitList(res.data));
-      })
-      .catch((err) => {});
-  };
-};
 // Xóa khóa học
 export let deleteCourse = (values) => {
   return (dispatch) => {
@@ -93,17 +87,171 @@ export let deleteCourse = (values) => {
       });
   };
 };
-export let addCourse = (values) => {
-  console.log("🙂 ~ addCourse ~ values:", values);
+// Thông tin khóa học
+export let detailCourse = (values) => {
+  return (dispatch) => {
+    https
+      .get(`/api/QuanLyKhoaHoc/LayThongTinKhoaHoc?maKhoaHoc=${values}`)
+      .then((res) => {
+        let detailJson = JSON.stringify(res.data);
+        localStorage.setItem("DETAIL_COURSE", detailJson);
+        dispatch(setDetail(res.data));
+      })
+      .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
+        message.error(err.response.data);
+      });
+  };
+};
+// Thêm khóa học uploadHinhanh
+export let addCourseImg = (values) => {
+  console.log("🙂 ~ addCourseImg ~ values:", values);
+  return (dispatch) => {
+    https
+      .post("/api/QuanLyKhoaHoc/ThemKhoaHocUploadHinh", values)
+      .then((res) => {
+        console.log("🙂 ~ .then ~ res:", res);
+        message.success("add success");
+      })
+      .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
+        message.error(err.response.data);
+      });
+  };
+};
+// Sữa khóa học uploadHinhanh
+export let updtaeCourseImg = (values) => {
+  return (dispatch) => {
+    https
+      .post("/api/QuanLyKhoaHoc/CapNhatKhoaHocUpload", values)
+      .then((res) => {
+        console.log("🙂 ~ .then ~ res:", res.data);
+        message.success("add success");
+      })
+      .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
+        message.error(err.response.data);
+      });
+  };
+};
+// Thêm khóa học
+export let addCourseNew = (values) => {
   return (dispatch) => {
     https
       .post("/api/QuanLyKhoaHoc/ThemKhoaHoc", values)
       .then((res) => {
-        message.success("add success");
+        message.success("Add success");
+        https
+          .post("/api/QuanLyKhoaHoc/UploadHinhAnhKhoaHoc", values.formUpload)
+          .then((res) => {
+            console.log("🙂 ~ .then ~ res:", res.data);
+          })
+          .catch((err) => {
+            console.log("🙂 ~ return ~ err:", err);
+          });
         window.location.href = "/managerCourse";
       })
       .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
         message.error(err.response.data);
+      });
+  };
+};
+// Sữa khóa học
+export let updateCourse = (values) => {
+  console.log("🙂 ~ updateCourse ~ values:", values.formUpload);
+  return (dispatch) => {
+    https
+      .put("api/QuanLyKhoaHoc/CapNhatKhoaHoc", values)
+      .then((res) => {
+        console.log("🙂 ~ .then ~ res:", res.data);
+        message.success("Edit success");
+        {
+          values.formUpload &&
+            https
+              .post(
+                "/api/QuanLyKhoaHoc/UploadHinhAnhKhoaHoc",
+                values.formUpload
+              )
+              .then((res) => {
+                console.log("🙂 ~ .then ~ res:", res.data);
+              })
+              .catch((err) => {
+                console.log("🙂 ~ return ~ err:", err);
+              });
+        }
+        window.location.href = "/managerCourse";
+      })
+      .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
+        message.error(err.response.data);
+      });
+  };
+};
+// Tìm kiếm khóa học
+export let searchCourse = (values) => {
+  return (dispatch) => {
+    https(`/api/QuanLyKhoaHoc/LayThongTinKhoaHoc?maKhoaHoc=${values}`)
+      .then((res) => {
+        console.log("🙂 ~ .then ~ res:", res);
+        dispatch(setCourseArr(res.data));
+      })
+      .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
+      });
+  };
+};
+// Danh sách user chờ xác nhận
+export let listConfirm = (values) => {
+  return (dispatch) => {
+    https
+      .post("/api/QuanLyNguoiDung/LayDanhSachHocVienChoXetDuyet", values)
+      .then((res) => {
+        dispatch(setListPendingConfirm(res.data));
+      })
+      .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
+      });
+  };
+};
+// Xác nhận user ghi danh
+export let registerCourse = (maKhoaHoc, taiKhoan) => {
+  return (dispatch) => {
+    https
+      .post("api/QuanLyKhoaHoc/GhiDanhKhoaHoc", {
+        maKhoaHoc: maKhoaHoc,
+        taiKhoan: taiKhoan,
+      })
+      .then((res) => {
+        window.location.reload();
+      })
+      .catch((err) => {});
+  };
+};
+// Danh sách User đã xác nhận
+export let listUserConfirm = (maKhoaHoc) => {
+  return (dispatch) => {
+    https
+      .post("/api/QuanLyNguoiDung/LayDanhSachHocVienKhoaHoc", maKhoaHoc)
+      .then((res) => {
+        dispatch(setListConfirm(res.data));
+      })
+      .catch((err) => {});
+  };
+};
+// Hủy ghi danh
+export let cancelCourse = (maKhoaHoc, taiKhoan) => {
+  return (dispatch) => {
+    https
+      .post("/api/QuanLyKhoaHoc/HuyGhiDanh", {
+        maKhoaHoc: maKhoaHoc,
+        taiKhoan: taiKhoan,
+      })
+      .then((res) => {
+        console.log("🙂 ~ .then ~ res:", res);
+      })
+      .catch((err) => {
+        console.log("🙂 ~ return ~ err:", err);
       });
   };
 };

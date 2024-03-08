@@ -12,7 +12,6 @@ import userSlice from "./redux/User/userSlice";
 import dataSlice from "./redux/User/dataSlice";
 import thunk from "redux-thunk";
 import Spinner from "./redux/Spinner/spinnerSlice";
-import dataUserSlice from "./redux/Admin/listUserSlice";
 import listUserSlice from "./redux/Admin/listUserSlice";
 import listCourseSlice from "./redux/Admin/listCourseSlice";
 

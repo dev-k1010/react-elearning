@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 export default function Filter({ courseArr, filter, sortBy }) {
   const user = useSelector((state) => state.userSlice.user);
   const detailUser = useSelector((state) => state.userSlice.detailUser);
-
   // Array khóa học
   const [currentCoursesArr, setCurrentCoursesArr] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,16 +17,59 @@ export default function Filter({ courseArr, filter, sortBy }) {
   const totalCourses = currentCoursesArr.length;
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
+  // Check null "Đệ quy"
+  const check = (course) => {
+    const checkNullValue = (course) => {
+      for (const key in course) {
+        if (course.hasOwnProperty(key)) {
+          const value = course[key];
 
+          // Kiểm tra giá trị của key
+          if (value === null) {
+            return false;
+          }
+
+          // Nếu giá trị là một object hoặc array, thực hiện kiểm tra đệ quy
+          if (typeof value === "object" && value !== null) {
+            if (Array.isArray(value)) {
+              // Nếu giá trị là một array, kiểm tra từng phần tử trong array
+              for (let i = 0; i < value.length; i++) {
+                if (!checkNullValue(value[i])) {
+                  return false; // Nếu có giá trị null, trả về false
+                }
+              }
+            } else {
+              // Nếu giá trị là một object, thực hiện kiểm tra đệ quy
+              if (!checkNullValue(value)) {
+                return false; // Nếu có giá trị null, trả về false
+              }
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    return checkNullValue(course);
+  };
+  // Lọc khóa học không có key NULL
+  const courseVaidArr = courseArr.filter((course) => {
+    return check(course);
+  });
+  console.log("🙂 ~ courseVaidArr ~ courseVaidArr:", courseVaidArr)
   useEffect(() => {
     const filterState = sessionStorage.getItem("filterState");
     if (filterState) {
-      setCurrentCoursesArr(JSON.parse(filterState));
+      const filterArr = JSON.parse(filterState);
+      const checkFilter = filterArr.filter((course) => {
+        return check(course);
+      });
+      setCurrentCoursesArr(checkFilter);
     } else {
-      setCurrentCoursesArr(courseArr);
+      setCurrentCoursesArr(courseVaidArr);
     }
   }, [courseArr]);
-  // Xử lý logic
+  // Lọc khóa học theo danh mục
   const handleDropDown = (item) => {
     const filterMap = {
       1: (course) => true,
@@ -44,13 +86,15 @@ export default function Filter({ courseArr, filter, sortBy }) {
       "4-1": (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "TuDuy",
       "4-2": (course) => course.danhMucKhoaHoc.maDanhMucKhoahoc === "Design",
     };
-
-    const filteredList = courseArr.filter(filterMap[item]);
+    // const checkArrDropDown = courseArr.filter((course) => {
+    //   return check(course);
+    // });
+    const filteredList = courseVaidArr.filter(filterMap[item]);
     setCurrentCoursesArr(filteredList);
     setCurrentPage(1);
     sessionStorage.setItem("filterState", JSON.stringify(filteredList));
   };
-
+  // Sắp xếp theo lượt xem
   const handleSortBy = (item) => {
     sortOrder === "desc" ? setSortOrder("asc") : setSortOrder("desc");
     const sortedCourses = [...currentCoursesArr].sort((a, b) => {
@@ -72,7 +116,6 @@ export default function Filter({ courseArr, filter, sortBy }) {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  // Render UI
   const renderFilterMenu = () => (
     <Menu>
       {filter.map((item) => (
@@ -181,3 +224,4 @@ export default function Filter({ courseArr, filter, sortBy }) {
     </div>
   );
 }
+/// Fillter version check course null

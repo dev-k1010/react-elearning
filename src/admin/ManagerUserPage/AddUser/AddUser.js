@@ -1,7 +1,10 @@
 import { Button, Form, Input, Modal, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addUserAdmin, userArr } from "../../redux/Admin/action/callAdminApi";
+import {
+  addUserAdmin,
+  userArr,
+} from "../../../redux/Admin/action/callAdminApi";
 import { useNavigate } from "react-router-dom";
 
 export default function AddUser() {

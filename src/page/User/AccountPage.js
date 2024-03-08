@@ -10,8 +10,8 @@ export default function AccountPage() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.userSlice.user);
   const detailUser = useSelector((state) => state.userSlice.detailUser);
-  const [options, setOptions] = useState([]);
   const courseArr = detailUser.chiTietKhoaHocGhiDanh;
+  const [options, setOptions] = useState([]);
   const [nameCourse, setNameCourse] = useState([]);
 
   // Cập nhật lại thông tin

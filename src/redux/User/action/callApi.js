@@ -95,7 +95,6 @@ export let addUser = (values) => {
   };
 };
 
-
 //
 // Data Course
 //
@@ -165,25 +164,8 @@ export let signUpCourse = (valuesCourse, valuesUser) => {
         taiKhoan: valuesUser,
       })
       .then((res) => {
-        console.log("🙂 ~ .then ~ res:", res);
+        console.log("🙂 ~ .then ~ res:", res.data);
         dispatch(infoDetailUser(res.data));
-      })
-      .catch((err) => {
-        console.log("🙂 ~ return ~ err:", err);
-      });
-  };
-};
-// Hủy ghi danh
-export let cancelCourse = (valuesCourse, valuesUser) => {
-  return (dispatch) => {
-    https
-      .post("/api/QuanLyKhoaHoc/HuyGhiDanh", {
-        maKhoaHoc: valuesCourse,
-        taiKhoan: valuesUser,
-      })
-      .then((res) => {
-        console.log("🙂 ~ .then ~ res:", res);
-        dispatch(setDetailUser(res.data));
       })
       .catch((err) => {
         console.log("🙂 ~ return ~ err:", err);

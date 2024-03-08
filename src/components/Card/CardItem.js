@@ -1,6 +1,6 @@
 import { Button, Card, Modal, Rate, Space } from "antd";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   ShoppingCartOutlined,
   YoutubeOutlined,
@@ -11,11 +11,8 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import {
-  cancelCourse,
-  infoDetailUser,
-  signUpCourse,
-} from "../../redux/User/action/callApi";
+import { signUpCourse } from "../../redux/User/action/callApi";
+import { cancelCourse } from "../../redux/Admin/action/callAdminApi";
 
 export default function CardItem({
   course,
@@ -23,14 +20,16 @@ export default function CardItem({
   isBestSeller,
   isHomePage,
   isCategoryPage,
-  isSearchPage,
   isAccontPage,
   isDetailpage,
+  isShopPage,
   detailUser,
   user,
 }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleBuyNow = (maKhoaHoc) => {
+    // Kiểm tra người dùng đã đăng kí chưa
     if (
       detailUser &&
       detailUser.chiTietKhoaHocGhiDanh.find(
@@ -65,10 +64,26 @@ export default function CardItem({
   };
   const handleCancelCourse = (maKhoaHoc) => {
     dispatch(cancelCourse(maKhoaHoc, detailUser.taiKhoan));
-    window.location.reload();
+    Modal.success({
+      title: "Successfully Registered",
+      content: (
+        <div>
+          <p>Cancel success!</p>
+        </div>
+      ),
+      okButtonProps: {
+        className: "bg-color3 text-white",
+      },
+    });
+    if (isShopPage) {
+      window.location.href = "/";
+    } else {
+      navigate("/");
+    }
   };
   return (
     <>
+      {/* Card slider */}
       {stypeCard == 1 && (
         <div className="py-7 mx-2 ">
           <Card
@@ -141,7 +156,7 @@ export default function CardItem({
                   </NavLink>
                 </div>
               </div>
-              <div className="flex flex-col p-2">
+              <div className="flex flex-col p-2 sm:visible md:visible lg:hidden">
                 <h2 className="text-left line-clamp-4 text-ellipsis m-2 mt-0 text-xs">
                   {course.moTa}
                 </h2>
@@ -162,7 +177,7 @@ export default function CardItem({
           </Card>
         </div>
       )}
-
+      {/* Card homepage và Catagorypage*/}
       {stypeCard == 2 && (
         <Card key={course.maKhoaHoc} className="mb-2">
           <div className="grid grid-cols-4 p-2 space-x-2 md:space-x-4 ">
@@ -205,11 +220,11 @@ export default function CardItem({
                       style={{ fontSize: 12 }}
                       className=" text-color4 hover:text-color5 hover:border-color5"
                     >
-                      Delete <DeleteOutlined />
+                      Cancel <DeleteOutlined />
                     </Button>
                   </>
                 )}
-                {(isCategoryPage || isSearchPage) && (
+                {isCategoryPage && (
                   <>
                     <span>{course.ngayTao}</span>
                     <div className="space-x-3">
@@ -321,6 +336,112 @@ export default function CardItem({
           </NavLink>
         </Card>
       )}
+      {/* Card shop*/}
+      {stypeCard == 4 && (
+        <Card
+          onClick={() => {
+            navigate(`/account/${user.taiKhoan}`);
+          }}
+          key={course.maKhoaHoc}
+          className="mb-2 lg:max-w-[500px] "
+        >
+          <div className="grid grid-cols-3 p-2 space-x-2 md:space-x-4 ">
+            <div className="col-span-1 flex justify-center items-center">
+              <img
+                src={course.hinhAnh}
+                className="h-[20vh] w-full"
+                loading="lazy"
+              />
+            </div>
+            <div className="col-span-2 grid grid-cols-1 ">
+              <span className="font-bold">{course.tenKhoaHoc}</span>
+              <span>
+                <p
+                  style={{ fontSize: "1vw" }}
+                  className="line-clamp-3  overflow-hidden text-xs"
+                >
+                  {course.moTa}
+                </p>
+              </span>
+              <div className="flex justify-between items-center pt-1 space-x-2">
+                <div className="flex justify-center items-center space-x-2">
+                  <Space>
+                    <Rate
+                      className=" text-color4 text-lg md:text-lg lg:text-xs"
+                      allowHalf
+                      defaultValue={4.5}
+                      disabled
+                    />
+                  </Space>
+                  <span className="mt-2  hidden md:block md:text-lg lg:text-xs">
+                    ({course.luotXem})
+                  </span>
+                </div>
+
+                {isShopPage && (
+                  <>
+                    <Button
+                      onClick={() => handleCancelCourse(course.maKhoaHoc)}
+                      style={{ fontSize: 12 }}
+                      className=" text-color4 hover:text-color5 hover:border-color5"
+                    >
+                      Cancel <DeleteOutlined />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+      {/* Khóa học ở Addpage */}
+      {/* {stypeCard == 5 && (
+        <Card key={course.maKhoaHoc} className="mb-2 w-full">
+          <div className="grid grid-cols-3 p-2 space-x-2 md:space-x-4 ">
+            <div className="col-span-1 flex justify-center items-center">
+              <img
+                src={course.hinhAnh}
+                className="h-[20vh] w-full"
+                loading="lazy"
+              />
+            </div>
+            <div className="col-span-2 grid grid-cols-1 ">
+              <span className="font-bold">{course.tenKhoaHoc}</span>
+              <span>
+                <p
+                  style={{ fontSize: "1vw" }}
+                  className="line-clamp-3  overflow-hidden text-xs"
+                >
+                  {course.moTa}
+                </p>
+              </span>
+              <div className="flex justify-between items-center pt-1 space-x-2">
+                <div className="grid grid-cols-3 space-x-2">
+                  <span className="flex justify-center items-center">
+                    <Space>
+                      <Rate
+                        className=" text-color4 text-lg md:text-lg lg:text-xs"
+                        allowHalf
+                        defaultValue={4.5}
+                        disabled
+                      />
+                      <span className="mt-2  hidden md:block md:text-lg lg:text-xs">
+                        ({course.luotXem})
+                      </span>
+                    </Space>
+                  </span>
+                  <span className="flex justify-center items-center">
+                    {course.ngayTao}
+                  </span>
+                  <span className="flex justify-center items-center">
+                    {course.danhMucKhoaHoc.maDanhMucKhoahoc}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )} */}
       {isDetailpage && (
         <>
           <div
