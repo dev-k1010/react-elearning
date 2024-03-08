@@ -260,7 +260,9 @@ export default function AddCourse() {
                 className="p-0"
                 onChange={(e) => {
                   const file = e.target.files[0];
+
                   const reader = new FileReader();
+
                   reader.onload = (e) => {
                     const fileType = file.type.split("/")[1];
                     // Tạo một đối tượng mới với thuộc tính 'name' được cập nhật
@@ -277,6 +279,7 @@ export default function AddCourse() {
                     });
                     setHinhAnh(e.target.result);
                   };
+
                   reader.readAsDataURL(file);
                 }}
               />

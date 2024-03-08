@@ -180,7 +180,7 @@ export let updateCourse = (values) => {
                 console.log("🙂 ~ return ~ err:", err);
               });
         }
-        window.location.href = "/managerCourse";
+        // window.location.href = "/managerCourse";
       })
       .catch((err) => {
         console.log("🙂 ~ return ~ err:", err);
